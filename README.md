@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# École du Dos — HSNE Eupen · Maquette interactive
 
-## Getting Started
+> Prototype de plateforme intégrée pour la coordination du programme École du Dos
+> (Rückenschule) de l'Hôpital Saint-Nicolas Eupen. Protocole KCE/INAMI, 36 séances,
+> bilingue FR/DE.
 
-First, run the development server:
+**Auteur** : Philippe Banaszak — Kinésithérapeute HSNE
+**Contact** : philippe.banaszak@hospital-eupen.be
+**Statut** : Maquette cliquable · données fictives · pas de backend
+
+---
+
+## Objectif de la maquette
+
+Illustrer en 5 minutes de clic la transformation du service École du Dos :
+d'un processus papier dispersé à un parcours patient coordonné autour
+d'une plateforme unique, accessible aux 5 acteurs du soin.
+
+Cette maquette a pour vocation de **susciter l'intérêt initial** auprès de
+la direction et du service IT afin de débloquer les ressources pour le
+développement de la v1 en production.
+
+## Écrans démontrés
+
+| Route | Description |
+|-------|-------------|
+| `/` | Accueil — sélecteur des 5 rôles + features clés |
+| `/vision` | **Vision avant/après** · schéma parcours · métriques cibles · feuille de route |
+| `/physio` | Dashboard médecin physiothérapeute (prescripteur) — résumé 1 page, scores T0/T1, validation rapport final |
+| `/kine` | Dashboard kinésithérapeute — liste patients + KPI |
+| `/kine/[id]` | Fiche patient détaillée — 5 onglets (vue d'ensemble, anamnèse, tests, séances, rapport) |
+| `/secretary` | Dashboard secrétariat — agenda, contacts, mutuelle, facturation INAMI |
+| `/ergo` | Dashboard ergothérapeute — ODI par items, poste de travail, adaptations |
+| `/patient` | Interface patient (tablette) — questionnaire NRS + STarT Back interactif bilingue |
+
+## Argumentaire de démo (5 minutes)
+
+1. **`/vision`** — « Voilà le problème aujourd'hui, voilà ce qu'on propose. »
+   Schéma avant/après, métriques chiffrées (−75% temps rapport, 100% RGPD).
+2. **`/secretary`** (Vue d'ensemble) — « Voici ce que voit la secrétaire en
+   arrivant lundi matin. Plus rien ne se perd. »
+3. **`/secretary`** (Mutuelle) — La relance automatique Freie Krankenkasse qui
+   n'est plus oubliée.
+4. **`/physio`** (patient Delcour) — « Le médecin physio voit en 30 secondes
+   l'évolution T0 → T1 avant la consultation. Il valide le rapport en 1 clic. »
+5. **`/patient`** — Répondre à 2-3 questions pour montrer le questionnaire
+   tablette bilingue FR/DE.
+
+## Stack technique
+
+- **Next.js 16** · React 19 · TypeScript
+- **TailwindCSS v4** (design tokens inspirés de la fiche v3 — palette navy/clover/amber)
+- **Recharts** (courbes EVA, barres ODI)
+- **lucide-react** (icônes)
+- Données mockées (TypeScript, pas de backend) · 7 patients fictifs
+
+## Démarrer en local
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Build production :
+```bash
+npm run build
+npm start
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+  app/
+    page.tsx              # accueil
+    kine/                 # dashboard kiné + fiche patient
+    physio/               # dashboard médecin physio
+    secretary/            # dashboard secrétariat
+    ergo/                 # dashboard ergothérapeute
+    patient/              # interface patient (tablette)
+    vision/               # page narrative avant/après
+  components/             # UI primitives, KPITile, StatusBadge, charts
+  lib/
+    app-context.tsx       # langue FR/DE + rôle courant
+    i18n.ts               # dictionnaires FR/DE
+    mock-data.ts          # patients, scores, agenda, facturation, ODI items
+```
 
-## Learn More
+## Roadmap (voir `/vision` dans l'app)
 
-To learn more about Next.js, take a look at the following resources:
+8 phases, voir aussi `progress.txt` à la racine pour le journal de
+progression du prototype.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Licence
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Prototype interne HSNE · tous droits réservés. Non destiné à un usage clinique.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

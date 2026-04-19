@@ -1,0 +1,125 @@
+EDD HSNE — Demo v0 · Journal de progression
+============================================
+
+OBJECTIF GLOBAL
+---------------
+Maquette cliquable (pas de backend réel) destinée à débloquer des ressources
+auprès de la direction HSNE et du service IT. Priorité : montrer la
+transformation du service chaotique en parcours coordonné.
+
+STACK
+-----
+- Next.js 16.2.4 (App Router) + React 19 + TypeScript
+- TailwindCSS v4 (@theme tokens dans globals.css)
+- Recharts (courbes), lucide-react (icônes), clsx + tailwind-merge
+- Données mockées en TypeScript (src/lib/mock-data.ts)
+- Langue gérée via AppProvider (React Context + localStorage)
+
+DESIGN TOKENS (issus de Fiche_EcoleDuDos_v3.html)
+--------------------------------------------------
+navy #1e3a5f · navy-mid #2e5d8e · navy-light #d6e4f0 · navy-pale #eef4fa
+accent #c0392b · clover #1a6b45 · amber #d35400 · ink #1a1a2e
+Fonts : DM Sans (sans) + DM Serif Display (serif, titres)
+
+SESSION 1 — FAIT (19/04/2026)
+-----------------------------
+[x] Scaffold Next.js + Tailwind v4 + dépendances
+[x] Design system + palette + typographies dans globals.css
+[x] AppShell (header HSNE + toggle FR/DE + bandeau demo + footer)
+[x] AppProvider (lang + role + persistance localStorage)
+[x] i18n FR/DE complet (src/lib/i18n.ts)
+[x] Mock data : 7 patients avec scores T0/T1 cohérents, yellow/red flags,
+    trends EVA par séance, statuts variés (prescrit → terminé)
+[x] Composants UI : Card/CardHeader/CardBody, Badge, KPITile, StatusBadge
+[x] Page d'accueil : 5 cartes rôle (seul « Kiné » actif, les autres grisés)
+    + 3 feature tiles (bilingue, RGPD, rapports)
+[x] Dashboard Kiné :
+    - 5 KPI (actifs, T0 en attente, T1 à planifier, baisse moy. EVA, satisfaction)
+    - Recherche
+    - Table patients avec progress bar 0/36 et statut coloré
+[x] Fiche patient (/kine/[id]) avec 5 onglets :
+    - Vue d'ensemble : scores T0/T1/Δ, courbe EVA Recharts, alertes, objectifs, RDV
+    - Anamnèse : placeholders 6 sections (structure fiche v3 page 2)
+    - Tests & scores : table complète + module vélo (placeholder)
+    - Séances : grille 36 cases
+    - Rapport : état + bouton génération (mock)
+[x] Dev server OK (npm run dev) — 200 sur /, /kine, /kine/p001
+
+SESSION 2 — FAIT (19/04/2026)
+-----------------------------
+[x] Enrichissement mock-data : appointments (7 RDV), billings (4 factures
+    INAMI code 563011), mutualRequests (4 demandes avec statuts variés)
+[x] Dashboard Médecin Physio (/physio) :
+    - Filtre auto sur prescripteur connecté (Dr. S. Henrot en démo)
+    - 4 KPI (prescriptions actives, T1 à valider, alertes, gain EVA moyen)
+    - Liste latérale des patients cliquable → panneau détail à droite
+    - Résumé 1 page : plainte + hypothèse + flags + 3 CTA (valider rapport,
+      rapport médecin traitant, notes consult)
+    - Scores T0/T1 + courbe EVA + objectifs
+[x] Dashboard Secrétariat (/secretary) :
+    - 5 tabs : Vue d'ensemble, Agenda, Contacts, Mutuelle, Facturation
+    - 5 KPI avec badges numériques sur les tabs
+    - Vue d'ensemble : prochains RDV + alertes fin programme +
+      mutuelles à relancer + synthèse hebdo
+    - Agenda : liste chronologique style Outlook avec vignette date
+    - Contacts : patients à contacter (prescribed/contacted) + boutons
+      Appeler/Planifier
+    - Mutuelle : table avec statuts colorés + actions Envoyer/Relancer
+    - Facturation : total € à encaisser + table factures INAMI détaillée
+[x] Home : cartes Médecin physio + Secrétariat activées
+[x] Dev server : toutes les routes 200 (/, /kine, /kine/[id], /physio, /secretary)
+
+SESSION 3 — À FAIRE
+-------------------
+[ ] Multi-courbe overview fiche kiné : ajouter ODI + TSK (normalisés) en
+    plus d'EVA sur le même graphique (légende commutable)
+[ ] Body chart SVG (extrait de Fiche_EcoleDuDos_v3.html) dans onglet Anamnèse
+[ ] Dashboard Ergothérapeute (/ergo) — ODI par items, poste de travail
+[ ] Interface Patient (/patient) — un questionnaire interactif démo
+    (NRS + 1-2 items STarT Back pour prouver le concept)
+[ ] Page « Vision / Parcours » (/vision) — schéma avant/après, métriques cibles
+[ ] Déploiement Netlify (configurer netlify.toml), URL partageable
+[ ] README pitch avec captures d'écran
+
+POINTS TECHNIQUES À GARDER EN TÊTE
+-----------------------------------
+- Next.js 16 : TOUS les composants utilisant hooks/state/Context DOIVENT être
+  "use client". AppShell, pages dashboard, ScoresTable, PainChart = client.
+- Tailwind v4 : couleurs custom via @theme (pas tailwind.config.js).
+  Les classes bg-navy, text-clover, etc. sont auto-générées.
+- Fonts Google : `@import url(...)` DOIT être AVANT `@import "tailwindcss"`
+  dans globals.css (sinon PostCSS rejette).
+- Recharts côté SSR émet un warning width/height(-1) inoffensif.
+- IDs patients : p001..p007, 5 avec scores complets, 2 en attente T0.
+
+COMMANDES UTILES
+----------------
+cd "/Users/philippe/Documents/HSNE/Ecole du dos/hsne-edd-demo"
+npm run dev          # démarre sur :3000
+npm run build        # vérifier prod build avant déploiement
+npm run lint
+
+STRUCTURE
+---------
+src/
+  app/
+    layout.tsx              # AppProvider + AppShell
+    page.tsx                # accueil sélecteur rôle
+    kine/
+      page.tsx              # liste patients + KPI
+      [id]/page.tsx         # fiche patient avec 5 onglets
+    globals.css             # tokens Tailwind v4
+  components/
+    AppShell.tsx            # header + footer + toggle FR/DE
+    KPITile.tsx
+    StatusBadge.tsx
+    ScoresTable.tsx
+    PainChart.tsx           # Recharts
+    ui/
+      Card.tsx
+      Badge.tsx
+  lib/
+    app-context.tsx         # useApp() : lang, role, t (dict)
+    i18n.ts                 # dict FR/DE
+    mock-data.ts            # patients + kpis + scoreThresholds
+    utils.ts                # cn()
