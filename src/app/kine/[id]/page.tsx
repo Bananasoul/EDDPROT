@@ -18,11 +18,17 @@ import {
 } from "lucide-react";
 import { getPatient } from "@/lib/mock-data";
 import { useApp } from "@/lib/app-context";
+import { generateMedicalReport } from "@/lib/pdf/medicalReport";
+import { generateInamiReport } from "@/lib/pdf/inamiReport";
+import { generateMutualLetter } from "@/lib/pdf/mutualLetter";
+import { AiReportAssistant } from "@/components/AiReportAssistant";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ScoresTable } from "@/components/ScoresTable";
 import { PainChart } from "@/components/PainChart";
+import { MultiScoreChart } from "@/components/MultiScoreChart";
+import { BodyChart } from "@/components/BodyChart";
 import { cn } from "@/lib/utils";
 
 type Tab = "overview" | "anamnesis" | "tests" | "sessions" | "report";
@@ -133,9 +139,12 @@ function OverviewTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
         </Card>
 
         <Card>
-          <CardHeader title={t.evolution} subtitle="EVA activité — séances 1 à 36" />
+          <CardHeader
+            title={t.evolution}
+            subtitle="EVA · ODI · TSK · HAD — toutes les courbes superposées"
+          />
           <CardBody>
-            <PainChart data={p.painTrend} />
+            <MultiScoreChart patient={p} />
           </CardBody>
         </Card>
       </div>
@@ -252,6 +261,15 @@ function AnamnesisTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) 
       </Card>
       <Card className="lg:col-span-2">
         <CardHeader
+          title="Localisation de la douleur"
+          subtitle="Cliquez sur les zones pour marquer l'intensité (0 → 3 → 6 → 9)"
+        />
+        <CardBody>
+          <BodyChart />
+        </CardBody>
+      </Card>
+      <Card className="lg:col-span-2">
+        <CardHeader
           title="Anamnèse complète"
           subtitle="Saisie progressive — la structure reprend la fiche v3 (page 2)"
         />
@@ -346,54 +364,111 @@ function SessionsTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
 }
 
 function ReportTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
-  const { t } = useApp();
-  const ready = p.scoresT0 && p.scoresT1;
+  const { t, lang } = useApp();
+  const readyT1 = !!(p.scoresT0 && p.scoresT1);
+  const documents = [
+    {
+      key: "medical",
+      titleFr: "Rapport au médecin traitant",
+      titleDe: "Bericht an den Hausarzt",
+      descFr: "Compte-rendu clinique complet : anamnèse, scores T0/T1, évolution, drapeaux, recommandations.",
+      descDe: "Vollständiger klinischer Bericht: Anamnese, T0/T1-Scores, Entwicklung, Flaggen, Empfehlungen.",
+      ready: !!p.scoresT0,
+      hint: !p.scoresT0
+        ? lang === "de"
+          ? "T0-Bewertung erforderlich"
+          : "Bilan T0 requis"
+        : !readyT1
+        ? lang === "de"
+          ? "Vorläufige Version (T1 ausstehend)"
+          : "Version intermédiaire (T1 en attente)"
+        : "",
+      generate: () => generateMedicalReport(p, lang),
+    },
+    {
+      key: "inami",
+      titleFr: "Attestation INAMI 563011",
+      titleDe: "INAMI-Bescheinigung 563011",
+      descFr: "Attestation de fin de programme · récapitulatif honoraires · critères qualité KCE.",
+      descDe: "Programmabschlussbescheinigung · Honorarübersicht · KCE-Qualitätskriterien.",
+      ready: p.sessionsDone >= 6,
+      hint: p.sessionsDone < 6 ? (lang === "de" ? "Mindestens 6 Sitzungen erforderlich" : "Min. 6 séances requises") : "",
+      generate: () => generateInamiReport(p, lang),
+    },
+    {
+      key: "mutual",
+      titleFr: "Courrier mutuelle (prise en charge)",
+      titleDe: "Krankenkassen-Schreiben (Kostenübernahme)",
+      descFr: `Demande adressée à ${p.mutual} · indication clinique · cotation INAMI.`,
+      descDe: `Antrag an ${p.mutual} · klinische Indikation · INAMI-Tarifierung.`,
+      ready: true,
+      hint: "",
+      generate: () => generateMutualLetter(p, lang),
+    },
+  ];
+
   return (
-    <Card>
-      <CardHeader
-        title={t.nav.report}
-        subtitle="Génération automatique FR/DE à partir des données saisies"
-      />
-      <CardBody>
-        <div className="flex items-start gap-4">
-          <div
-            className={cn(
-              "w-12 h-12 rounded-lg flex items-center justify-center",
-              ready ? "bg-clover-soft text-clover" : "bg-slate-light text-slate"
-            )}
-          >
-            <FileText className="w-6 h-6" />
-          </div>
-          <div className="flex-1">
-            <div className="font-medium text-navy">
-              Rapport École du Dos — {p.lang === "de" ? "Rückenschule Bericht" : "Bilan T0 / T1"}
-            </div>
-            <div className="text-sm text-slate mt-1">
-              {ready
-                ? "Prêt à être généré. Le rapport compilera : anamnèse, scores T0/T1, évolution, hypothèse clinique, recommandations au médecin traitant."
-                : "En attente des scores T1 (évaluation de sortie)."}
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button
-                disabled={!ready}
-                className={cn(
-                  "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition",
-                  ready
-                    ? "bg-navy text-white hover:bg-navy-mid"
-                    : "bg-slate-light text-slate cursor-not-allowed"
-                )}
+    <div className="space-y-4">
+      <AiReportAssistant patient={p} />
+      <Card>
+        <CardHeader
+          title={t.nav.report}
+          subtitle={lang === "de"
+            ? "Automatische Generierung FR/DE — sofortiger PDF-Download"
+            : "Génération automatique FR/DE — téléchargement PDF immédiat"}
+        />
+        <CardBody>
+          <div className="grid gap-3">
+            {documents.map((d) => (
+              <div
+                key={d.key}
+                className="flex items-start gap-4 p-4 rounded-lg border border-hairline bg-white hover:border-navy-mid transition"
               >
-                <FileText className="w-4 h-4" />
-                {t.generateReport}
-              </button>
-              <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-hairline text-navy hover:bg-navy-pale">
-                <Activity className="w-4 h-4" />
-                Prévisualiser
-              </button>
-            </div>
+                <div
+                  className={cn(
+                    "w-11 h-11 rounded-lg flex items-center justify-center shrink-0",
+                    d.ready ? "bg-clover-soft text-clover" : "bg-slate-light text-slate"
+                  )}
+                >
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-navy">
+                    {lang === "de" ? d.titleDe : d.titleFr}
+                  </div>
+                  <div className="text-sm text-slate mt-0.5">
+                    {lang === "de" ? d.descDe : d.descFr}
+                  </div>
+                  {d.hint && (
+                    <div className="text-xs text-amber mt-1.5 font-medium">{d.hint}</div>
+                  )}
+                </div>
+                <button
+                  onClick={d.generate}
+                  disabled={!d.ready}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition shrink-0",
+                    d.ready
+                      ? "bg-navy text-white hover:bg-navy-mid"
+                      : "bg-slate-light text-slate cursor-not-allowed"
+                  )}
+                >
+                  <FileText className="w-4 h-4" />
+                  {lang === "de" ? "PDF herunterladen" : "Télécharger PDF"}
+                </button>
+              </div>
+            ))}
           </div>
-        </div>
-      </CardBody>
-    </Card>
+          <div className="mt-4 text-xs text-slate flex items-start gap-2 p-3 rounded-md bg-navy-pale">
+            <Activity className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              {lang === "de"
+                ? "Alle Dokumente werden mit dem Briefkopf des SNH generiert und enthalten den Hinweis « Demonstration » mit fiktiven Daten."
+                : "Tous les documents sont générés avec l'en-tête HSNE et porteront la mention « démonstration » tant que les données ne sont pas réelles."}
+            </span>
+          </div>
+        </CardBody>
+      </Card>
+    </div>
   );
 }

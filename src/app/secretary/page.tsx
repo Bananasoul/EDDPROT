@@ -23,6 +23,8 @@ import {
   getPatient,
   type Appointment,
 } from "@/lib/mock-data";
+import { generateMutualLetter } from "@/lib/pdf/mutualLetter";
+import { generateInamiReport } from "@/lib/pdf/inamiReport";
 import { useApp } from "@/lib/app-context";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -421,14 +423,20 @@ function MutualTab() {
                 </td>
                 <td className="px-3 py-3 text-xs text-slate">{m.note ?? ""}</td>
                 <td className="px-3 py-3 text-right">
-                  {m.status === "à envoyer" && (
-                    <button className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-navy text-white hover:bg-navy-mid">
-                      <Send className="w-3.5 h-3.5" /> Envoyer
+                  {m.status === "à envoyer" && p && (
+                    <button
+                      onClick={() => generateMutualLetter(p, p.lang)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-navy text-white hover:bg-navy-mid"
+                    >
+                      <Send className="w-3.5 h-3.5" /> Générer & envoyer
                     </button>
                   )}
-                  {m.status === "relance requise" && (
-                    <button className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-amber text-white hover:bg-amber/90">
-                      <RotateCcw className="w-3.5 h-3.5" /> Relancer
+                  {m.status === "relance requise" && p && (
+                    <button
+                      onClick={() => generateMutualLetter(p, p.lang)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-amber text-white hover:bg-amber/90"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" /> Relancer (PDF)
                     </button>
                   )}
                 </td>
@@ -526,9 +534,12 @@ function BillingTab() {
                     {b.nextBillingDate ? new Date(b.nextBillingDate).toLocaleDateString("fr-BE") : "—"}
                   </td>
                   <td className="px-3 py-3 text-right">
-                    {b.status === "à facturer" && (
-                      <button className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-clover text-white hover:bg-clover/90">
-                        <Send className="w-3.5 h-3.5" /> Émettre
+                    {b.status === "à facturer" && p && (
+                      <button
+                        onClick={() => generateInamiReport(p, p.lang)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-clover text-white hover:bg-clover/90"
+                      >
+                        <Send className="w-3.5 h-3.5" /> Émettre (PDF)
                       </button>
                     )}
                   </td>

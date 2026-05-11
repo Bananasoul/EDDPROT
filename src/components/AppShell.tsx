@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Activity } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
+import { DemoMode } from "./DemoMode";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useApp();
@@ -68,6 +69,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <main className="flex-1">{children}</main>
+      <DemoMode />
 
       {!isHome && (
         <footer className="border-t border-hairline bg-white py-6 text-center text-xs text-slate">

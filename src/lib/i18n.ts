@@ -29,6 +29,10 @@ export const dict = {
         name: "Patient",
         desc: "Questionnaires T0/T1, suivi personnel, consentement RGPD.",
       },
+      direction: {
+        name: "Direction & Pilotage",
+        desc: "ROI, file d'attente, qualité KCE, comparatif avant/après plateforme.",
+      },
     },
     patientsList: "Mes patients",
     search: "Rechercher",
@@ -122,6 +126,10 @@ export const dict = {
       patient: {
         name: "Patient",
         desc: "T0/T1-Fragebögen, persönlicher Verlauf, DSGVO-Einwilligung.",
+      },
+      direction: {
+        name: "Direktion & Steuerung",
+        desc: "ROI, Warteliste, KCE-Qualität, Vorher/Nachher-Vergleich.",
       },
     },
     patientsList: "Meine Patienten",

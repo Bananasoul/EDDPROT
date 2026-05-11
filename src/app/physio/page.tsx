@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { patients, type Patient } from "@/lib/mock-data";
 import { useApp } from "@/lib/app-context";
+import { generateMedicalReport } from "@/lib/pdf/medicalReport";
+import { generateInamiReport } from "@/lib/pdf/inamiReport";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { KPITile } from "@/components/KPITile";
@@ -172,6 +174,7 @@ function PhysioDetail({ p }: { p: Patient }) {
 
           <div className="flex flex-wrap gap-2 pt-2 border-t border-hairline/60">
             <button
+              onClick={() => readyForReport && generateInamiReport(p, p.lang)}
               disabled={!readyForReport}
               className={cn(
                 "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition",
@@ -181,11 +184,14 @@ function PhysioDetail({ p }: { p: Patient }) {
               )}
             >
               <CheckCircle2 className="w-4 h-4" />
-              Valider & signer le rapport final
+              Valider & signer (PDF INAMI)
             </button>
-            <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-hairline text-navy hover:bg-navy-pale">
+            <button
+              onClick={() => generateMedicalReport(p, p.lang)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-hairline text-navy hover:bg-navy-pale"
+            >
               <FileText className="w-4 h-4" />
-              Rapport pour médecin traitant
+              Rapport médecin traitant (PDF)
             </button>
             <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-hairline text-navy hover:bg-navy-pale">
               <Stethoscope className="w-4 h-4" />

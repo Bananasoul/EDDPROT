@@ -12,11 +12,12 @@ import {
   ShieldCheck,
   Languages,
   FileText,
+  BarChart3,
 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
 
-const roleKeys = ["physio", "kine", "ergo", "secretary", "patient"] as const;
+const roleKeys = ["physio", "kine", "ergo", "secretary", "patient", "direction"] as const;
 
 const roleMeta: Record<
   (typeof roleKeys)[number],
@@ -55,6 +56,13 @@ const roleMeta: Record<
     href: "/patient",
     accent: "border-t-navy-mid",
     iconBg: "bg-navy-light text-navy",
+    enabled: true,
+  },
+  direction: {
+    icon: BarChart3,
+    href: "/direction",
+    accent: "border-t-clover",
+    iconBg: "bg-clover-soft text-clover",
     enabled: true,
   },
 };
