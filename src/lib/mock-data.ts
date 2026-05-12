@@ -667,6 +667,11 @@ export const appointments: Appointment[] = [
 ];
 
 // ─── Facturation INAMI (mock codes nomenclature) ───────────────────
+// ⚠️  Les montants ci-dessous (158,40 €, code 563011) sont des PLACEHOLDERS.
+// Le code et le tarif exact dépendent de la convention HSNE
+// (article 7 nomenclature kiné vs article 22 II centre conventionné).
+// Voir docs/INAMI-CLARIFICATIONS.md pour les 5 questions à poser à Fanny
+// avant d'ajuster ces chiffres. Tarifs 2026 à indexer +2,72 %.
 export type Billing = {
   patientId: string;
   code: string;
