@@ -30,6 +30,7 @@ import { PainChart } from "@/components/PainChart";
 import { MultiScoreChart } from "@/components/MultiScoreChart";
 import { BodyChart } from "@/components/BodyChart";
 import { BikeTest } from "@/components/BikeTest";
+import { ApparatusSessionsView } from "@/components/ApparatusSessions";
 import { cn } from "@/lib/utils";
 
 type Tab = "overview" | "anamnesis" | "tests" | "sessions" | "report";
@@ -330,38 +331,59 @@ function TestsTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
 function SessionsTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
   const { t } = useApp();
   return (
-    <Card>
-      <CardHeader
-        title={t.sessionsProgress}
-        subtitle={`${p.sessionsDone} / 36 séances réalisées`}
-      />
-      <CardBody>
-        <div className="grid grid-cols-9 md:grid-cols-12 gap-1.5">
-          {Array.from({ length: 36 }).map((_, i) => {
-            const done = i < p.sessionsDone;
-            return (
-              <div
-                key={i}
-                className={cn(
-                  "aspect-square rounded text-[10px] flex items-center justify-center font-semibold tabular-nums",
-                  done ? "bg-navy text-white" : "bg-slate-light text-slate border border-hairline"
-                )}
-              >
-                {i + 1}
-              </div>
-            );
-          })}
-        </div>
-        <div className="mt-4 text-xs text-slate flex gap-4">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-navy" /> Réalisée
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded bg-slate-light border border-hairline" /> À faire
-          </span>
-        </div>
-      </CardBody>
-    </Card>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader
+          title={t.sessionsProgress}
+          subtitle={`${p.sessionsDone} / 36 séances réalisées · vue d'ensemble du programme`}
+        />
+        <CardBody>
+          <div className="grid grid-cols-9 md:grid-cols-12 gap-1.5">
+            {Array.from({ length: 36 }).map((_, i) => {
+              const done = i < p.sessionsDone;
+              const isT0 = i === 0;
+              const isT1 = i === 35;
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    "aspect-square rounded text-[10px] flex flex-col items-center justify-center font-semibold tabular-nums",
+                    done ? "bg-navy text-white" : "bg-slate-light text-slate border border-hairline",
+                    (isT0 || isT1) && "ring-2 ring-amber"
+                  )}
+                  title={isT0 ? "T0 — bilan d'entrée" : isT1 ? "T1 — bilan de sortie" : `Séance ${i + 1}`}
+                >
+                  {i + 1}
+                  {isT0 && <span className="text-[7px] opacity-80">T0</span>}
+                  {isT1 && <span className="text-[7px] opacity-80">T1</span>}
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-4 text-xs text-slate flex gap-4 flex-wrap">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded bg-navy" /> Réalisée
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded bg-slate-light border border-hairline" /> À faire
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-3 h-3 rounded ring-2 ring-amber" /> T0 / T1 (bilans)
+            </span>
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="Séances appareils — détail & progression"
+          subtitle="Saisie quotidienne · suivi FC vs cible 75 % FCmax · graphique d'évolution"
+        />
+        <CardBody>
+          <ApparatusSessionsView patient={p} />
+        </CardBody>
+      </Card>
+    </div>
   );
 }
 

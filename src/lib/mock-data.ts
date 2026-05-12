@@ -1006,3 +1006,115 @@ export const scoreThresholds = {
   start: { max: 9, warn: 4, bad: 7, higherIsWorse: true },
   wkg: { max: 4, warn: 1.5, bad: 1.0, higherIsWorse: false },
 };
+
+// ─── Sessions appareils (60 min après cours collectif) ────────────
+// Type importé depuis lib/equipment.ts — ré-export pour DX
+import type { ApparatusSession } from "./equipment";
+export type { ApparatusSession } from "./equipment";
+
+// Génération mock : pour chaque patient en programme, on génère
+// quelques sessions récentes avec progression de FC et baisse d'EVA.
+function genSession(
+  patientId: string,
+  sessionNumber: number,
+  date: string,
+  startFc: number,
+  evaBefore: number,
+  evaAfter: number
+): ApparatusSession {
+  return {
+    id: `${patientId}-s${sessionNumber}`,
+    patientId,
+    sessionNumber,
+    date,
+    staff: "Ph. Banaszak",
+    evaPainBefore: evaBefore,
+    evaPainAfter: evaAfter,
+    notes: "",
+    uses: [
+      {
+        equipmentId: "bike-3",
+        durationMin: 15,
+        fcAvg: startFc,
+        fcMax: startFc + 8,
+        settings: { resistance: 50, rpm: 65 },
+      },
+      {
+        equipmentId: "treadmill-1",
+        durationMin: 10,
+        fcAvg: startFc - 5,
+        fcMax: startFc + 2,
+        settings: { speed: 4.5, incline: 1 },
+      },
+      {
+        equipmentId: "rower-2",
+        durationMin: 8,
+        fcAvg: startFc + 6,
+        fcMax: startFc + 16,
+        settings: { level: 4, strokeRate: 22 },
+      },
+    ],
+  };
+}
+
+export const apparatusSessions: ApparatusSession[] = [
+  // p001 Schmitz — 22 séances, on en génère 6 récentes
+  genSession("p001", 17, "2026-04-29T09:30:00", 110, 4, 3),
+  genSession("p001", 18, "2026-05-02T09:30:00", 112, 4, 3),
+  genSession("p001", 19, "2026-05-05T09:30:00", 114, 4, 3),
+  genSession("p001", 20, "2026-05-07T09:30:00", 116, 3, 2),
+  genSession("p001", 21, "2026-05-09T09:30:00", 117, 3, 2),
+  { ...genSession("p001", 22, "2026-05-12T09:30:00", 119, 3, 2), notes: "Bonne progression — patiente plus motivée, parle de reprendre le jardin." },
+
+  // p002 Delcour — 34 séances, dernières
+  genSession("p002", 30, "2026-04-21T09:30:00", 122, 3, 1),
+  genSession("p002", 31, "2026-04-23T09:30:00", 124, 2, 1),
+  genSession("p002", 32, "2026-04-28T09:30:00", 125, 2, 1),
+  genSession("p002", 33, "2026-04-30T09:30:00", 126, 2, 1),
+  genSession("p002", 34, "2026-05-02T09:30:00", 128, 2, 1),
+
+  // p008 Brandt — 12 séances jeune Maurer
+  { ...genSession("p008", 8, "2026-04-23T09:30:00", 138, 5, 3), uses: [
+      { equipmentId: "bike-1", durationMin: 20, fcAvg: 138, fcMax: 152, settings: { resistance: 75, rpm: 70 } },
+      { equipmentId: "rower-1", durationMin: 12, fcAvg: 148, fcMax: 165, settings: { level: 6, strokeRate: 26 } },
+      { equipmentId: "cross-1", durationMin: 10, fcAvg: 142, fcMax: 158, settings: { level: 5, rpm: 60 } },
+  ]},
+  genSession("p008", 9, "2026-04-25T09:30:00", 140, 5, 3),
+  genSession("p008", 10, "2026-04-30T09:30:00", 142, 4, 2),
+  genSession("p008", 11, "2026-05-02T09:30:00", 144, 4, 2),
+  { ...genSession("p008", 12, "2026-05-07T09:30:00", 146, 4, 2), notes: "Excellente capacité. Autorisé à augmenter charge vélo +10W." },
+
+  // p011 Müller (78 ans, ostéoporose) — adapté basse intensité
+  { ...genSession("p011", 14, "2026-04-21T14:00:00", 92, 4, 4), uses: [
+      { equipmentId: "bike-2", durationMin: 10, fcAvg: 92, fcMax: 100, settings: { resistance: 25, rpm: 55 } },
+      { equipmentId: "treadmill-1", durationMin: 8, fcAvg: 88, fcMax: 96, settings: { speed: 3.0, incline: 0 } },
+  ]},
+  genSession("p011", 15, "2026-04-25T14:00:00", 94, 4, 4),
+  genSession("p011", 16, "2026-04-28T14:00:00", 95, 4, 3),
+
+  // p014 Dethier (burn-out) — montée progressive
+  genSession("p014", 11, "2026-04-23T10:00:00", 108, 5, 3),
+  genSession("p014", 12, "2026-04-28T10:00:00", 112, 4, 2),
+  { ...genSession("p014", 13, "2026-04-30T10:00:00", 115, 3, 2), notes: "Premier sourire de la patiente après séance — suivi psy efficace." },
+  genSession("p014", 14, "2026-05-07T10:00:00", 118, 3, 2),
+
+  // p010 Vandenberg — abandons fréquents, sessions partielles
+  { ...genSession("p010", 6, "2026-04-23T09:30:00", 105, 6, 6), notes: "A interrompu après vélo — douleur. Discussion équipe : recadrage prévu." },
+  { ...genSession("p010", 7, "2026-04-30T09:30:00", 108, 5, 5), uses: [
+      { equipmentId: "bike-4", durationMin: 8, fcAvg: 108, fcMax: 118, settings: { resistance: 25, rpm: 60 } },
+  ]},
+  genSession("p010", 8, "2026-05-07T09:30:00", 110, 5, 4),
+
+  // p005 Hilgers (completed) — historique complet (5 dernières)
+  genSession("p005", 32, "2026-02-26T10:00:00", 118, 2, 1),
+  genSession("p005", 33, "2026-02-28T10:00:00", 120, 2, 1),
+  genSession("p005", 34, "2026-03-02T10:00:00", 122, 1, 1),
+  genSession("p005", 35, "2026-03-04T10:00:00", 124, 1, 1),
+  { ...genSession("p005", 36, "2026-03-05T10:00:00", 126, 1, 1), notes: "Dernière séance ! Patiente émue — atteinte de tous ses objectifs." },
+];
+
+export function sessionsForPatient(patientId: string): ApparatusSession[] {
+  return apparatusSessions
+    .filter((s) => s.patientId === patientId)
+    .sort((a, b) => a.sessionNumber - b.sessionNumber);
+}
