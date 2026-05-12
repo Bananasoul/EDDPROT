@@ -29,6 +29,7 @@ import { ScoresTable } from "@/components/ScoresTable";
 import { PainChart } from "@/components/PainChart";
 import { MultiScoreChart } from "@/components/MultiScoreChart";
 import { BodyChart } from "@/components/BodyChart";
+import { BikeTest } from "@/components/BikeTest";
 import { cn } from "@/lib/utils";
 
 type Tab = "overview" | "anamnesis" | "tests" | "sessions" | "report";
@@ -314,11 +315,12 @@ function TestsTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
         </CardBody>
       </Card>
       <Card>
-        <CardHeader title="Test à l'effort vélo" subtitle="W/kg selon âge et sexe" />
+        <CardHeader
+          title="Test endurance vélo (sub-max 75 % FCmax)"
+          subtitle="Protocole HSNE · paliers 25 W / 2 min · normes ACSM 2018"
+        />
         <CardBody>
-          <div className="text-sm text-slate">
-            Module de saisie à venir : paramètres T0/T1, normes W/kg intégrées.
-          </div>
+          <BikeTest patient={p} />
         </CardBody>
       </Card>
     </div>
