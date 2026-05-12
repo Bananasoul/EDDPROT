@@ -33,6 +33,10 @@ export const dict = {
         name: "Direction & Pilotage",
         desc: "ROI, file d'attente, qualité KCE, comparatif avant/après plateforme.",
       },
+      psy: {
+        name: "Psychologue",
+        desc: "Coordination des séances bio-psycho-sociales · groupes FR/DE séparés.",
+      },
     },
     patientsList: "Mes patients",
     search: "Rechercher",
@@ -130,6 +134,10 @@ export const dict = {
       direction: {
         name: "Direktion & Steuerung",
         desc: "ROI, Warteliste, KCE-Qualität, Vorher/Nachher-Vergleich.",
+      },
+      psy: {
+        name: "Psychologin",
+        desc: "Koordination bio-psycho-sozialer Sitzungen · getrennte FR/DE-Gruppen.",
       },
     },
     patientsList: "Meine Patienten",

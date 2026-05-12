@@ -13,11 +13,12 @@ import {
   Languages,
   FileText,
   BarChart3,
+  Brain,
 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
 
-const roleKeys = ["physio", "kine", "ergo", "secretary", "patient", "direction"] as const;
+const roleKeys = ["physio", "kine", "ergo", "secretary", "patient", "direction", "psy"] as const;
 
 const roleMeta: Record<
   (typeof roleKeys)[number],
@@ -63,6 +64,13 @@ const roleMeta: Record<
     href: "/direction",
     accent: "border-t-clover",
     iconBg: "bg-clover-soft text-clover",
+    enabled: true,
+  },
+  psy: {
+    icon: Brain,
+    href: "/psy",
+    accent: "border-t-amber",
+    iconBg: "bg-amber-soft text-amber",
     enabled: true,
   },
 };

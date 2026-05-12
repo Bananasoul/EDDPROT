@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { dict, type Lang, type Dict } from "./i18n";
 
-type Role = "physio" | "kine" | "ergo" | "secretary" | "patient" | "direction" | null;
+type Role = "physio" | "kine" | "ergo" | "secretary" | "patient" | "direction" | "psy" | null;
 
 type Ctx = {
   lang: Lang;

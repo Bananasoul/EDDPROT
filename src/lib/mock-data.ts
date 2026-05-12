@@ -1118,3 +1118,111 @@ export function sessionsForPatient(patientId: string): ApparatusSession[] {
     .filter((s) => s.patientId === patientId)
     .sort((a, b) => a.sessionNumber - b.sessionNumber);
 }
+
+// ─── Sessions psychologue (2 séances en groupe / patient) ─────────
+// Le programme EDD inclut 2 séances avec la psychologue
+// (modèle bio-psycho-social). Idéalement organisées sur le créneau
+// habituel du patient (groupe FR ou DE selon langue).
+//
+// Psychologue : Dr. Katrin Vossen — bilingue FR/DE mais préfère
+// animer chaque session dans UNE seule langue (Q8 Philippe).
+
+export type PsySessionStatus = "pending" | "scheduled" | "completed" | "no_show" | "rescheduled";
+
+export type PsySession = {
+  // Slot psy planifié pour un groupe
+  id: string;
+  date: string | null; // null = à planifier
+  lang: "fr" | "de";
+  topic: 1 | 2; // séance 1 = douleur/biopsy, séance 2 = stratégies coping
+  patientIds: string[];
+  groupSlot?: string; // ex: "Mar/Jeu 8-10"
+  status: PsySessionStatus;
+  notes?: string;
+};
+
+// Suivi par patient : a-t-il fait psy 1 et psy 2 ?
+export type PatientPsyStatus = {
+  patientId: string;
+  psy1Done: boolean;
+  psy1Date: string | null;
+  psy2Done: boolean;
+  psy2Date: string | null;
+  psyExternal?: string; // suivi psy parallèle externe
+};
+
+// Initialisation : pour tout patient en programme/clôturé, statut psy
+export const patientPsyStatus: PatientPsyStatus[] = [
+  { patientId: "p001", psy1Done: true, psy1Date: "2026-03-12", psy2Done: false, psy2Date: null },
+  { patientId: "p002", psy1Done: true, psy1Date: "2026-02-10", psy2Done: true, psy2Date: "2026-04-01" },
+  { patientId: "p003", psy1Done: false, psy1Date: null, psy2Done: false, psy2Date: null },
+  { patientId: "p005", psy1Done: true, psy1Date: "2025-11-20", psy2Done: true, psy2Date: "2026-02-14" },
+  { patientId: "p008", psy1Done: true, psy1Date: "2026-04-10", psy2Done: false, psy2Date: null },
+  { patientId: "p009", psy1Done: true, psy1Date: "2026-03-18", psy2Done: false, psy2Date: null },
+  { patientId: "p010", psy1Done: false, psy1Date: null, psy2Done: false, psy2Date: null },
+  { patientId: "p011", psy1Done: true, psy1Date: "2026-03-25", psy2Done: false, psy2Date: null },
+  { patientId: "p012", psy1Done: false, psy1Date: null, psy2Done: false, psy2Date: null },
+  { patientId: "p014", psy1Done: true, psy1Date: "2026-03-20", psy2Done: false, psy2Date: null, psyExternal: "Suivi parallèle Dr. Wauters (psy clinique)" },
+  { patientId: "p015", psy1Done: true, psy1Date: "2026-04-02", psy2Done: false, psy2Date: null },
+  { patientId: "p016", psy1Done: false, psy1Date: null, psy2Done: false, psy2Date: null },
+  { patientId: "p017", psy1Done: false, psy1Date: null, psy2Done: false, psy2Date: null },
+  { patientId: "p019", psy1Done: true, psy1Date: "2025-10-15", psy2Done: true, psy2Date: "2025-12-08" },
+  { patientId: "p020", psy1Done: false, psy1Date: null, psy2Done: false, psy2Date: null },
+];
+
+// Sessions psy planifiées (mock)
+export const psySessions: PsySession[] = [
+  {
+    id: "psy-1",
+    date: "2026-05-21T09:00:00",
+    lang: "de",
+    topic: 1,
+    patientIds: ["p003", "p012", "p016"],
+    groupSlot: "Mer/Ven 8-10",
+    status: "scheduled",
+    notes: "3 nouveaux patients DE, séance 1 (douleur biopsychosociale)",
+  },
+  {
+    id: "psy-2",
+    date: "2026-05-23T11:00:00",
+    lang: "fr",
+    topic: 1,
+    patientIds: ["p010", "p017", "p020"],
+    groupSlot: "Mer/Ven 10-12",
+    status: "scheduled",
+    notes: "3 patients FR séance 1",
+  },
+  {
+    id: "psy-3",
+    date: "2026-04-10T09:00:00",
+    lang: "de",
+    topic: 1,
+    patientIds: ["p001", "p008"],
+    groupSlot: "Mar/Jeu 8-10",
+    status: "completed",
+  },
+  {
+    id: "psy-4",
+    date: null,
+    lang: "de",
+    topic: 2,
+    patientIds: ["p001", "p008", "p011"],
+    groupSlot: "Mar/Jeu 8-10",
+    status: "pending",
+    notes: "Séance 2 (stratégies coping) — à planifier",
+  },
+  {
+    id: "psy-5",
+    date: null,
+    lang: "fr",
+    topic: 2,
+    patientIds: ["p009", "p014", "p015"],
+    groupSlot: "Mer/Ven 10-12",
+    status: "pending",
+    notes: "Séance 2 — à planifier",
+  },
+];
+
+export function getPsyStatus(patientId: string): PatientPsyStatus | undefined {
+  return patientPsyStatus.find((p) => p.patientId === patientId);
+}
