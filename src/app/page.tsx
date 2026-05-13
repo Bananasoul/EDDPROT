@@ -2,75 +2,62 @@
 
 import Link from "next/link";
 import {
-  Stethoscope,
-  Dumbbell,
-  Briefcase,
-  ClipboardList,
-  User,
   ArrowRight,
   Network,
   ShieldCheck,
   Languages,
   FileText,
-  BarChart3,
-  Brain,
 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
+import { ROLE_ILLUSTRATIONS } from "@/components/RoleIllustrations";
 
 const roleKeys = ["physio", "kine", "ergo", "secretary", "patient", "direction", "psy"] as const;
 
 const roleMeta: Record<
   (typeof roleKeys)[number],
-  { icon: React.ComponentType<{ className?: string }>; href: string; accent: string; iconBg: string; enabled: boolean }
+  { illustration: React.ComponentType<{ className?: string; size?: number }>; href: string; accent: string; enabled: boolean }
 > = {
   physio: {
-    icon: Stethoscope,
+    illustration: ROLE_ILLUSTRATIONS.physio,
     href: "/physio",
-    accent: "border-t-accent",
-    iconBg: "bg-accent-soft text-accent",
+    accent: "border-t-cyan",
     enabled: true,
   },
   kine: {
-    icon: Dumbbell,
+    illustration: ROLE_ILLUSTRATIONS.kine,
     href: "/kine",
     accent: "border-t-navy",
-    iconBg: "bg-navy-pale text-navy",
     enabled: true,
   },
   ergo: {
-    icon: Briefcase,
+    illustration: ROLE_ILLUSTRATIONS.ergo,
     href: "/ergo",
     accent: "border-t-clover",
-    iconBg: "bg-clover-soft text-clover",
     enabled: true,
   },
   secretary: {
-    icon: ClipboardList,
+    illustration: ROLE_ILLUSTRATIONS.secretary,
     href: "/secretary",
     accent: "border-t-amber",
-    iconBg: "bg-amber-soft text-amber",
     enabled: true,
   },
   patient: {
-    icon: User,
+    illustration: ROLE_ILLUSTRATIONS.patient,
     href: "/patient",
-    accent: "border-t-navy-mid",
-    iconBg: "bg-navy-light text-navy",
+    accent: "border-t-cyan-light",
     enabled: true,
   },
   direction: {
-    icon: BarChart3,
+    illustration: ROLE_ILLUSTRATIONS.direction,
     href: "/direction",
-    accent: "border-t-clover",
-    iconBg: "bg-clover-soft text-clover",
+    accent: "border-t-navy-mid",
     enabled: true,
   },
   psy: {
-    icon: Brain,
+    illustration: ROLE_ILLUSTRATIONS.psy,
     href: "/psy",
     accent: "border-t-amber",
-    iconBg: "bg-amber-soft text-amber",
     enabled: true,
   },
 };
@@ -93,54 +80,40 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <section className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {roleKeys.map((key) => {
           const meta = roleMeta[key];
           const info = t.roles[key];
-          const Icon = meta.icon;
+          const Illustration = meta.illustration;
           const Card = (
             <div
               className={cn(
-                "group relative h-full bg-white rounded-xl border border-hairline p-5 transition-all",
+                "group relative h-full bg-white rounded-xl border border-hairline p-5 transition-all flex flex-col items-center text-center",
                 "border-t-4",
                 meta.accent,
                 meta.enabled
-                  ? "hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
+                  ? "hover:shadow-xl hover:-translate-y-1 cursor-pointer"
                   : "opacity-70 cursor-not-allowed"
               )}
             >
-              <div className="flex items-start gap-4">
-                <div
-                  className={cn(
-                    "w-11 h-11 rounded-lg flex items-center justify-center shrink-0",
-                    meta.iconBg
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-serif text-lg text-navy">{info.name}</h3>
-                    {!meta.enabled && (
-                      <span className="text-[10px] uppercase tracking-wide text-slate bg-slate-light px-1.5 py-0.5 rounded">
-                        bientôt
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-slate mt-1 leading-relaxed">{info.desc}</p>
-                </div>
+              <div className="mb-3 group-hover:scale-105 transition-transform">
+                <Illustration size={88} />
               </div>
-              {meta.enabled && (
-                <div className="mt-4 flex items-center gap-1.5 text-sm font-medium text-navy group-hover:gap-2.5 transition-all">
-                  Accéder
-                  <ArrowRight className="w-4 h-4" />
-                </div>
-              )}
+              <div className="flex-1 flex flex-col">
+                <h3 className="font-bold text-base text-navy leading-tight">{info.name}</h3>
+                <p className="text-xs text-slate mt-1.5 leading-relaxed flex-1">{info.desc}</p>
+                {meta.enabled && (
+                  <div className="mt-3 inline-flex items-center justify-center gap-1.5 text-xs font-bold text-cyan group-hover:gap-2.5 transition-all uppercase tracking-wide">
+                    Accéder
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                )}
+              </div>
             </div>
           );
 
           return meta.enabled ? (
-            <Link key={key} href={meta.href} onClick={() => setRole(key)}>
+            <Link key={key} href={meta.href} onClick={() => setRole(key)} className="block">
               {Card}
             </Link>
           ) : (
