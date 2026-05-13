@@ -1,29 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "DM Serif Display", ui-serif, Georgia, serif;
+/*
+ * Identité visuelle Hôpital Saint-Nicolas Eupen
+ * Palette extraite du site officiel hospital-eupen.be (mai 2026)
+ * Police : Nunito (Google Fonts) — utilisée sur tout le site HSNE
+ */
 
-  --color-ink: #1a1a2e;
-  --color-navy: #1e3a5f;
-  --color-navy-mid: #2e5d8e;
-  --color-navy-light: #d6e4f0;
-  --color-navy-pale: #eef4fa;
-  --color-accent: #c0392b;
-  --color-accent-soft: #fdf0ef;
-  --color-clover: #1a6b45;
-  --color-clover-soft: #edf7f2;
-  --color-amber: #d35400;
-  --color-amber-soft: #fef5ec;
-  --color-slate: #6b7280;
-  --color-slate-light: #f4f5f7;
-  --color-hairline: #c8d6e5;
+@theme {
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
+  /* Encres & textes */
+  --color-ink: #001636;          /* navy très foncé HSNE — corps texte */
+  --color-slate: #64748b;         /* texte secondaire (slate-500) */
+  --color-slate-light: #f1f5f9;   /* fonds neutres clairs (slate-100) */
+  --color-hairline: #e2e8f0;      /* séparateurs (slate-200) */
+
+  /* Navy HSNE (logo + accents principaux) */
+  --color-navy: #1D2C50;          /* navy logo officiel */
+  --color-navy-mid: #2C4470;      /* navy intermédiaire pour hovers */
+  --color-navy-light: #C7D0E0;    /* navy pâle pour bordures */
+  --color-navy-pale: #EEF0F6;     /* navy très pâle pour fonds */
+
+  /* Cyan HSNE (couleur signature de l'identité) */
+  --color-cyan: #1F96B5;          /* cyan signature HSNE — CTA primaire */
+  --color-cyan-mid: #1E6580;      /* cyan foncé pour hovers */
+  --color-cyan-light: #7CC5D8;    /* cyan clair pour CTA secondaire */
+  --color-cyan-soft: #D5F3F8;     /* cyan très pâle pour bg badges */
+  --color-cyan-pale: #EEF9FA;     /* cyan ultra-pâle pour fond pages */
+
+  /* Couleurs sémantiques (alertes & statuts) — harmonisées avec navy HSNE */
+  --color-accent: #C0392B;        /* rouge urgence (drapeaux rouges) */
+  --color-accent-soft: #FDECEA;
+  --color-clover: #1A6B45;        /* vert succès */
+  --color-clover-soft: #EDF7F2;
+  --color-amber: #D35400;         /* ambre vigilance / drapeaux jaunes */
+  --color-amber-soft: #FEF3E8;
 }
 
 :root {
-  --background: #f7f9fc;
-  --foreground: #1a1a2e;
+  --background: #ffffff;          /* fond blanc pur, comme HSNE */
+  --foreground: #001636;          /* navy texte HSNE */
 }
 
 html, body {
@@ -33,8 +51,22 @@ html, body {
 
 body {
   font-family: var(--font-sans);
-  font-feature-settings: "ss01", "cv11";
+  font-weight: 400;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.font-serif { font-family: var(--font-serif); }
+/* Titres en Nunito gras (style HSNE) */
+h1, h2, h3, h4, h5, h6, .font-serif {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-navy);
+}
+
+/* Style HSNE : cartes blanches avec ombre douce */
+.hsne-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(29, 44, 80, 0.06);
+}

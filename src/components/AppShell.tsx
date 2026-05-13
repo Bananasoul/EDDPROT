@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
 import { DemoMode } from "./DemoMode";
+import { HSNELogo } from "./HSNELogo";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useApp();
@@ -13,17 +13,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isHome = pathname === "/";
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-navy text-white border-b border-navy-mid">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-md bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition">
-              <Activity className="w-5 h-5" />
-            </div>
-            <div className="leading-tight">
-              <div className="font-serif text-lg">{t.appTitle}</div>
-              <div className="text-[11px] text-white/70 tracking-wide uppercase">
-                {t.appSubtitle}
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* Header style HSNE — fond blanc, logo navy, CTA cyan */}
+      <header className="bg-white border-b border-hairline">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link href="/" className="flex items-center group">
+            <HSNELogo variant="full" />
+            {/* Programme tag — discret à droite du logo */}
+            <div className="hidden md:flex items-center gap-2 ml-6 pl-6 border-l border-hairline">
+              <div className="leading-tight">
+                <div className="text-[10px] uppercase tracking-[0.18em] text-cyan font-extrabold">
+                  Service École du Dos
+                </div>
+                <div className="text-xs text-slate font-medium">
+                  Rückenschule · Programme KCE/INAMI
+                </div>
               </div>
             </div>
           </Link>
@@ -32,20 +36,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Link
               href="/vision"
               className={cn(
-                "hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition",
+                "hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md transition",
                 pathname === "/vision"
-                  ? "bg-white/20 text-white"
-                  : "text-white/80 hover:bg-white/10 hover:text-white"
+                  ? "bg-navy text-white"
+                  : "text-navy hover:bg-navy-pale"
               )}
             >
               Vision
             </Link>
-            <div className="flex items-center rounded-md overflow-hidden border border-white/20">
+            <div className="flex items-center rounded-md overflow-hidden border border-hairline">
               <button
                 onClick={() => setLang("fr")}
                 className={cn(
-                  "px-3 py-1.5 text-xs font-medium transition",
-                  lang === "fr" ? "bg-white text-navy" : "text-white/80 hover:bg-white/10"
+                  "px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition",
+                  lang === "fr" ? "bg-cyan text-white" : "text-slate hover:bg-slate-light"
                 )}
               >
                 FR
@@ -53,8 +57,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 onClick={() => setLang("de")}
                 className={cn(
-                  "px-3 py-1.5 text-xs font-medium transition",
-                  lang === "de" ? "bg-white text-navy" : "text-white/80 hover:bg-white/10"
+                  "px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition",
+                  lang === "de" ? "bg-cyan text-white" : "text-slate hover:bg-slate-light"
                 )}
               >
                 DE
@@ -64,7 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div className="bg-amber-soft border-b border-amber/30 text-amber text-xs py-1.5 text-center font-medium tracking-wide">
+      <div className="bg-cyan-soft border-b border-cyan-light/40 text-cyan-mid text-xs py-1.5 text-center font-semibold tracking-wide">
         {t.demoBanner}
       </div>
 
@@ -72,10 +76,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <DemoMode />
 
       {!isHome && (
-        <footer className="border-t border-hairline bg-white py-6 text-center text-xs text-slate">
-          <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-            <span>© 2026 HSNE — École du Dos · Prototype v0</span>
-            <Link href="/" className="text-navy-mid hover:underline">
+        <footer className="border-t border-hairline bg-white py-6 text-xs text-slate">
+          <div className="max-w-7xl mx-auto px-6 flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <HSNELogo variant="icon" className="h-6 w-auto opacity-60" />
+              <span>© 2026 St. Nikolaus Hospital Eupen · École du Dos / Rückenschule · Prototype v0</span>
+            </div>
+            <Link href="/" className="text-cyan font-semibold hover:underline">
               {t.backToRoles}
             </Link>
           </div>

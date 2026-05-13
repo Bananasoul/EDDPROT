@@ -1,14 +1,18 @@
 import jsPDF from "jspdf";
 import type { Patient } from "@/lib/mock-data";
 
-export const NAVY: [number, number, number] = [30, 58, 95];
-export const NAVY_MID: [number, number, number] = [46, 93, 142];
+// Palette officielle Hôpital Saint-Nicolas Eupen (extraite hospital-eupen.be)
+export const NAVY: [number, number, number] = [29, 44, 80];      // #1D2C50 — navy logo HSNE
+export const NAVY_MID: [number, number, number] = [44, 68, 112]; // #2C4470
+export const CYAN: [number, number, number] = [31, 150, 181];    // #1F96B5 — cyan signature
+export const CYAN_LIGHT: [number, number, number] = [124, 197, 216]; // #7CC5D8
+export const CYAN_SOFT: [number, number, number] = [213, 243, 248];  // #D5F3F8
 export const CLOVER: [number, number, number] = [26, 107, 69];
 export const AMBER: [number, number, number] = [211, 84, 0];
 export const ACCENT: [number, number, number] = [192, 57, 43];
-export const INK: [number, number, number] = [26, 26, 46];
+export const INK: [number, number, number] = [0, 22, 54];        // #001636 — texte HSNE
 export const SLATE: [number, number, number] = [100, 116, 139];
-export const HAIRLINE: [number, number, number] = [203, 213, 225];
+export const HAIRLINE: [number, number, number] = [226, 232, 240];
 
 export type Lang = "fr" | "de";
 
@@ -38,36 +42,39 @@ export type DocMeta = {
 
 export function drawHeader(doc: jsPDF, lang: Lang, meta: DocMeta) {
   const W = doc.internal.pageSize.getWidth();
-  // Navy band
+  // Navy band — couleur HSNE officielle #1D2C50
   doc.setFillColor(...NAVY);
   doc.rect(0, 0, W, 28, "F");
-  // Accent stripe
-  doc.setFillColor(...AMBER);
+  // Accent stripe — cyan signature HSNE #1F96B5
+  doc.setFillColor(...CYAN);
   doc.rect(0, 28, W, 1.5, "F");
 
-  // Logo placeholder (HSNE monogram)
+  // Logo HSNE simplifié — 4 traits verticaux évoquant les feuilles du logo
   doc.setFillColor(255, 255, 255);
-  doc.roundedRect(12, 7, 14, 14, 2, 2, "F");
-  doc.setTextColor(...NAVY);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text("HSNE", 19, 16, { align: "center" });
+  doc.setLineWidth(1);
+  // Triangles stylisés (silhouette des feuilles HSNE)
+  const lx = 14, ly = 8;
+  doc.triangle(lx, ly + 12, lx + 3, ly, lx + 6, ly + 12, "F");
+  doc.triangle(lx + 5, ly + 12, lx + 8, ly, lx + 11, ly + 12, "F");
 
-  // Hospital name
+  // Hospital name (style logo HSNE)
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
-  doc.text(tr(lang, "Hôpital Saint-Nicolas Eupen", "St.-Nikolaus-Hospital Eupen"), 32, 13);
+  doc.text(tr(lang, "ST. NIKOLAUS HOSPITAL EUPEN", "ST.-NIKOLAUS-HOSPITAL EUPEN"), 30, 13);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text(tr(lang, "Service École du Dos · Programme KCE/INAMI", "Rückenschule · KCE/INAMI-Programm"), 32, 19);
+  doc.setTextColor(...CYAN_LIGHT);
+  doc.text(tr(lang, "Service École du Dos · Programme KCE/INAMI", "Rückenschule · KCE/INAMI-Programm"), 30, 19);
 
   // Document title (right)
+  doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
   doc.text(tr(lang, meta.titleFr, meta.titleDe), W - 12, 13, { align: "right" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
+  doc.setTextColor(...CYAN_LIGHT);
   doc.text(
     tr(lang, "Document généré le ", "Erstellt am ") + formatDate(new Date().toISOString(), lang),
     W - 12,
