@@ -208,3 +208,91 @@ export const EQUIPMENT_COLORS: Record<EquipmentType, string> = {
   crosstrainer: "#d35400", // amber
   rower: "#2e5d8e", // navy-mid
 };
+
+// ─── Inventaire détaillé pour la direction (rentabilité) ─────────
+export type EquipmentInventory = {
+  equipmentId: string;
+  inventoryNumber: string; // n° inventaire HSNE
+  serialNumber: string;
+  modelName: string;
+  purchaseDate: string; // ISO
+  purchasePrice: number; // € HT
+  depreciationYears: number; // amortissement linéaire
+  status: "active" | "maintenance" | "to_replace" | "decommissioned";
+  lastMaintenance: string | null;
+  nextMaintenance: string | null;
+  annualMaintenanceCost: number; // € moyen / an
+  decommissionDate?: string | null;
+};
+
+const TODAY = new Date("2026-05-13");
+
+function yearsBetween(iso: string, ref: Date = TODAY): number {
+  return (ref.getTime() - new Date(iso).getTime()) / (365.25 * 24 * 3600 * 1000);
+}
+
+export function bookValue(inv: EquipmentInventory): number {
+  if (inv.status === "decommissioned") return 0;
+  const age = yearsBetween(inv.purchaseDate);
+  const remaining = Math.max(0, inv.depreciationYears - age);
+  return +(inv.purchasePrice * (remaining / inv.depreciationYears)).toFixed(0);
+}
+
+export function annualDepreciation(inv: EquipmentInventory): number {
+  return +(inv.purchasePrice / inv.depreciationYears).toFixed(0);
+}
+
+// Inventaire complet — chiffres réalistes pour parc Tunturi 2018-2024
+export const EQUIPMENT_INVENTORY: EquipmentInventory[] = [
+  // Vélos d'appartement Tunturi Cardio
+  { equipmentId: "bike-1", inventoryNumber: "HSNE-EDD-2019-001", serialNumber: "TC4-1801234", modelName: "Tunturi Cardio Fit B30", purchaseDate: "2019-03-15", purchasePrice: 1450, depreciationYears: 7, status: "active", lastMaintenance: "2026-02-12", nextMaintenance: "2026-08-12", annualMaintenanceCost: 95 },
+  { equipmentId: "bike-2", inventoryNumber: "HSNE-EDD-2019-002", serialNumber: "TC4-1801255", modelName: "Tunturi Cardio Fit B30", purchaseDate: "2019-03-15", purchasePrice: 1450, depreciationYears: 7, status: "active", lastMaintenance: "2026-02-12", nextMaintenance: "2026-08-12", annualMaintenanceCost: 95 },
+  { equipmentId: "bike-3", inventoryNumber: "HSNE-EDD-2019-003", serialNumber: "TC4-1801266", modelName: "Tunturi Cardio Fit B30", purchaseDate: "2019-03-15", purchasePrice: 1450, depreciationYears: 7, status: "maintenance", lastMaintenance: "2026-04-22", nextMaintenance: "2026-05-20", annualMaintenanceCost: 145, decommissionDate: null },
+  { equipmentId: "bike-4", inventoryNumber: "HSNE-EDD-2021-004", serialNumber: "TC5-2102099", modelName: "Tunturi Performance E40", purchaseDate: "2021-09-08", purchasePrice: 1680, depreciationYears: 7, status: "active", lastMaintenance: "2026-01-18", nextMaintenance: "2026-07-18", annualMaintenanceCost: 110 },
+  { equipmentId: "bike-5", inventoryNumber: "HSNE-EDD-2021-005", serialNumber: "TC5-2102104", modelName: "Tunturi Performance E40", purchaseDate: "2021-09-08", purchasePrice: 1680, depreciationYears: 7, status: "active", lastMaintenance: "2026-01-18", nextMaintenance: "2026-07-18", annualMaintenanceCost: 110 },
+  { equipmentId: "bike-6", inventoryNumber: "HSNE-EDD-2024-006", serialNumber: "TC6-2402011", modelName: "Tunturi Performance E60", purchaseDate: "2024-02-20", purchasePrice: 1950, depreciationYears: 7, status: "active", lastMaintenance: "2026-03-04", nextMaintenance: "2026-09-04", annualMaintenanceCost: 105 },
+
+  // Tapis roulants Tunturi
+  { equipmentId: "treadmill-1", inventoryNumber: "HSNE-EDD-2020-007", serialNumber: "TR8-2009088", modelName: "Tunturi Pure Run 8.1", purchaseDate: "2020-06-10", purchasePrice: 4200, depreciationYears: 8, status: "active", lastMaintenance: "2026-03-25", nextMaintenance: "2026-09-25", annualMaintenanceCost: 340 },
+  { equipmentId: "treadmill-2", inventoryNumber: "HSNE-EDD-2022-008", serialNumber: "TR9-2204144", modelName: "Tunturi Performance T80", purchaseDate: "2022-04-14", purchasePrice: 4850, depreciationYears: 8, status: "active", lastMaintenance: "2026-03-25", nextMaintenance: "2026-09-25", annualMaintenanceCost: 360 },
+
+  // Cross-trainer
+  { equipmentId: "cross-1", inventoryNumber: "HSNE-EDD-2018-009", serialNumber: "CR3-1812055", modelName: "Tunturi C20 Cross trainer", purchaseDate: "2018-12-05", purchasePrice: 2350, depreciationYears: 7, status: "to_replace", lastMaintenance: "2026-01-10", nextMaintenance: null, annualMaintenanceCost: 220 },
+
+  // Rameurs Tunturi
+  { equipmentId: "rower-1", inventoryNumber: "HSNE-EDD-2020-010", serialNumber: "RW4-2003010", modelName: "Tunturi Cardio Fit R20", purchaseDate: "2020-03-10", purchasePrice: 1350, depreciationYears: 7, status: "active", lastMaintenance: "2026-02-15", nextMaintenance: "2026-08-15", annualMaintenanceCost: 75 },
+  { equipmentId: "rower-2", inventoryNumber: "HSNE-EDD-2020-011", serialNumber: "RW4-2003022", modelName: "Tunturi Cardio Fit R20", purchaseDate: "2020-03-10", purchasePrice: 1350, depreciationYears: 7, status: "active", lastMaintenance: "2026-02-15", nextMaintenance: "2026-08-15", annualMaintenanceCost: 75 },
+  { equipmentId: "rower-3", inventoryNumber: "HSNE-EDD-2023-012", serialNumber: "RW5-2306144", modelName: "Tunturi Performance R60", purchaseDate: "2023-06-14", purchasePrice: 1750, depreciationYears: 7, status: "active", lastMaintenance: "2026-03-08", nextMaintenance: "2026-09-08", annualMaintenanceCost: 85 },
+  { equipmentId: "rower-4", inventoryNumber: "HSNE-EDD-2023-013", serialNumber: "RW5-2306158", modelName: "Tunturi Performance R60", purchaseDate: "2023-06-14", purchasePrice: 1750, depreciationYears: 7, status: "active", lastMaintenance: "2026-03-08", nextMaintenance: "2026-09-08", annualMaintenanceCost: 85 },
+
+  // Anciens appareils déclassés (historique)
+  { equipmentId: "bike-old-1", inventoryNumber: "HSNE-EDD-2014-XXX", serialNumber: "TC2-1304022", modelName: "Tunturi F30 (déclassé)", purchaseDate: "2014-03-20", purchasePrice: 1100, depreciationYears: 7, status: "decommissioned", decommissionDate: "2021-05-01", lastMaintenance: null, nextMaintenance: null, annualMaintenanceCost: 0 },
+  { equipmentId: "treadmill-old-1", inventoryNumber: "HSNE-EDD-2013-XXX", serialNumber: "TR2-1306017", modelName: "Tunturi T20 (déclassé)", purchaseDate: "2013-06-01", purchasePrice: 3200, depreciationYears: 8, status: "decommissioned", decommissionDate: "2020-04-15", lastMaintenance: null, nextMaintenance: null, annualMaintenanceCost: 0 },
+];
+
+export function inventoryActive(): EquipmentInventory[] {
+  return EQUIPMENT_INVENTORY.filter((i) => i.status !== "decommissioned");
+}
+
+export function inventoryStats() {
+  const active = inventoryActive();
+  const totalPurchase = EQUIPMENT_INVENTORY.reduce((s, i) => s + i.purchasePrice, 0);
+  const totalActivePurchase = active.reduce((s, i) => s + i.purchasePrice, 0);
+  const totalBookValue = active.reduce((s, i) => s + bookValue(i), 0);
+  const annualDepreciationTotal = active.reduce((s, i) => s + annualDepreciation(i), 0);
+  const annualMaintenanceTotal = active.reduce((s, i) => s + i.annualMaintenanceCost, 0);
+  const inMaintenance = active.filter((i) => i.status === "maintenance").length;
+  const toReplace = active.filter((i) => i.status === "to_replace").length;
+  const decommissioned = EQUIPMENT_INVENTORY.filter((i) => i.status === "decommissioned").length;
+  return {
+    totalActive: active.length,
+    totalPurchase,
+    totalActivePurchase,
+    totalBookValue,
+    annualDepreciationTotal,
+    annualMaintenanceTotal,
+    inMaintenance,
+    toReplace,
+    decommissioned,
+  };
+}

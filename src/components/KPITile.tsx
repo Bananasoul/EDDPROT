@@ -11,13 +11,14 @@ export function KPITile({
   value: string | number;
   sub?: string;
   icon?: React.ReactNode;
-  tone?: "navy" | "amber" | "accent" | "clover";
+  tone?: "navy" | "amber" | "accent" | "clover" | "cyan";
 }) {
   const tones: Record<string, string> = {
     navy: "bg-navy-pale text-navy",
     amber: "bg-amber-soft text-amber",
     accent: "bg-accent-soft text-accent",
     clover: "bg-clover-soft text-clover",
+    cyan: "bg-cyan-soft text-cyan-mid",
   };
   return (
     <div className="bg-white rounded-xl border border-hairline p-4 flex items-start gap-3">
