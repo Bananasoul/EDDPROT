@@ -56,12 +56,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Titres en Nunito gras (style HSNE) */
+/* Titres en Nunito gras (style HSNE) — pas de couleur forcée
+   pour permettre l'override par tailwind (text-white sur fond foncé) */
 h1, h2, h3, h4, h5, h6, .font-serif {
   font-family: var(--font-sans);
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--color-navy);
 }
 
 /* Style HSNE : cartes blanches avec ombre douce */
