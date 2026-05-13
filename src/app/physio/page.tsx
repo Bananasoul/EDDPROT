@@ -15,6 +15,8 @@ import { patients, type Patient } from "@/lib/mock-data";
 import { useApp } from "@/lib/app-context";
 import { generateMedicalReport } from "@/lib/pdf/medicalReport";
 import { generateInamiReport } from "@/lib/pdf/inamiReport";
+import { RedFlagsChecklist, RedFlagsSummary } from "@/components/RedFlags";
+import { assessFlags } from "@/lib/red-flags";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { KPITile } from "@/components/KPITile";
@@ -22,6 +24,20 @@ import { StatusBadge } from "@/components/StatusBadge";
 import { ScoresTable } from "@/components/ScoresTable";
 import { PainChart } from "@/components/PainChart";
 import { cn } from "@/lib/utils";
+
+// Pré-cochage drapeaux rouges depuis champs prose du dossier
+function inferRedFlagIds(p: Patient): string[] {
+  const ids: string[] = [];
+  const text = (p.complaint + " " + p.hypothesis + " " + p.redFlags.join(" ")).toLowerCase();
+  if (text.includes("uriner") || text.includes("urinaire") || text.includes("queue de cheval"))
+    ids.push("ce_urinary");
+  if (text.includes("périnéal") || text.includes("anesthésie")) ids.push("ce_saddle");
+  if (text.includes("sphinctérien") || text.includes("incontinence")) ids.push("ce_fecal");
+  if (text.includes("ostéoporose") || text.includes("dxa")) ids.push("fr_osteoporosis");
+  if (text.includes("perte de poids")) ids.push("ca_weight_loss");
+  if (text.includes("antécédent cancer")) ids.push("ca_history");
+  return ids;
+}
 
 // Le médecin physio connecté est « Dr. S. Henrot » (démo)
 const CURRENT_PHYSIO = "Dr. S. Henrot";
@@ -130,8 +146,83 @@ export default function PhysioPage() {
 function PhysioDetail({ p }: { p: Patient }) {
   const { t } = useApp();
   const readyForReport = p.scoresT0 && p.scoresT1;
+  const inferredFlags = useMemo(() => inferRedFlagIds(p), [p]);
+  const assessment = useMemo(() => assessFlags(new Set(inferredFlags)), [inferredFlags]);
+  const [showFullChecklist, setShowFullChecklist] = useState(false);
   return (
     <div className="space-y-6">
+      {/* Bandeau drapeaux rouges — responsabilité MPR */}
+      {assessment.decision.level !== "ok" && (
+        <Card className={cn(
+          "border-l-4",
+          assessment.decision.level === "emergency" && "border-l-accent bg-accent/5",
+          assessment.decision.level === "urgent" && "border-l-accent bg-accent/5",
+          assessment.decision.level === "caution" && "border-l-amber bg-amber-soft/40"
+        )}>
+          <CardBody>
+            <div className="flex items-start gap-3">
+              <AlertTriangle
+                className={cn(
+                  "w-6 h-6 shrink-0 mt-0.5",
+                  (assessment.decision.level === "emergency" || assessment.decision.level === "urgent")
+                    ? "text-accent"
+                    : "text-amber"
+                )}
+              />
+              <div className="flex-1">
+                <div className="font-serif text-base text-navy">
+                  {assessment.decision.titleFr}
+                </div>
+                <p className="text-sm text-ink mt-1 leading-relaxed">
+                  {assessment.decision.recommendationFr}
+                </p>
+                <button
+                  onClick={() => setShowFullChecklist((v) => !v)}
+                  className="mt-2 text-xs text-navy hover:underline"
+                >
+                  {showFullChecklist ? "Masquer" : "Ouvrir"} la checklist complète drapeaux rouges (KCE 287)
+                </button>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+      {assessment.decision.level === "ok" && (
+        <Card className="border-l-4 border-l-clover bg-clover-soft/30">
+          <CardBody>
+            <div className="flex items-center gap-3">
+              <CheckCircle2 className="w-5 h-5 text-clover shrink-0" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-clover">
+                  Aucun drapeau rouge identifié dans le dossier · Lombalgie commune compatible EDD
+                </div>
+              </div>
+              <button
+                onClick={() => setShowFullChecklist((v) => !v)}
+                className="text-xs text-navy hover:underline shrink-0"
+              >
+                {showFullChecklist ? "Masquer" : "Vérifier"} la checklist
+              </button>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {showFullChecklist && (
+        <Card>
+          <CardHeader
+            title="Checklist drapeaux rouges (KCE 287)"
+            subtitle="Responsabilité MPR — à valider avant prescription"
+          />
+          <CardBody>
+            <RedFlagsChecklist
+              initialChecked={inferredFlags}
+              context="physio_prescription"
+            />
+          </CardBody>
+        </Card>
+      )}
+
       {/* Résumé 1 page pour la consult */}
       <Card>
         <CardHeader

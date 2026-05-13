@@ -31,9 +31,32 @@ import { MultiScoreChart } from "@/components/MultiScoreChart";
 import { BodyChart } from "@/components/BodyChart";
 import { BikeTest } from "@/components/BikeTest";
 import { ApparatusSessionsView } from "@/components/ApparatusSessions";
+import { RedFlagsChecklist, RedFlagsSummary } from "@/components/RedFlags";
 import { cn } from "@/lib/utils";
 
 type Tab = "overview" | "anamnesis" | "tests" | "sessions" | "report";
+
+/**
+ * Pré-cochage heuristique des drapeaux rouges à partir des champs
+ * complaint, hypothesis et redFlags du dossier mock. Permet à la démo
+ * de pré-remplir les checklists pour les patients déjà identifiés.
+ */
+function inferRedFlagIdsForPatient(p: NonNullable<ReturnType<typeof getPatient>>): string[] {
+  const ids: string[] = [];
+  const text = (p.complaint + " " + p.hypothesis + " " + p.redFlags.join(" ")).toLowerCase();
+  // Queue de cheval (Pascal Renard p013)
+  if (text.includes("uriner") || text.includes("urinaire") || text.includes("queue de cheval"))
+    ids.push("ce_urinary");
+  if (text.includes("périnéal") || text.includes("paresthésies périnéales") || text.includes("anesthésie"))
+    ids.push("ce_saddle");
+  if (text.includes("sphinctérien") || text.includes("incontinence")) ids.push("ce_fecal");
+  // Ostéoporose connue (Hildegard Müller p011)
+  if (text.includes("ostéoporose") || text.includes("dxa")) ids.push("fr_osteoporosis");
+  // Cancer
+  if (text.includes("perte de poids")) ids.push("ca_weight_loss");
+  if (text.includes("antécédent cancer")) ids.push("ca_history");
+  return ids;
+}
 
 export default function PatientPage() {
   const params = useParams<{ id: string }>();
@@ -130,8 +153,11 @@ export default function PatientPage() {
 
 function OverviewTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
   const { t } = useApp();
+  const redFlagIds = inferRedFlagIdsForPatient(p);
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="space-y-6">
+      {redFlagIds.length > 0 && <RedFlagsSummary checkedIds={redFlagIds} />}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <div className="lg:col-span-2 space-y-6">
         <Card>
           <CardHeader title={t.scores.title} subtitle="Entrée / Sortie · variation · seuils cliniques" />
@@ -242,6 +268,7 @@ function OverviewTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
           </Card>
         )}
       </div>
+      </div>
     </div>
   );
 }
@@ -259,6 +286,18 @@ function AnamnesisTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) 
         <CardHeader title="Hypothèse clinique" />
         <CardBody>
           <p className="text-sm text-ink leading-relaxed">{p.hypothesis}</p>
+        </CardBody>
+      </Card>
+      <Card className="lg:col-span-2 border-l-4 border-l-amber">
+        <CardHeader
+          title="🚨 Drapeaux rouges — checklist sécurité"
+          subtitle="Évaluation interactive (KCE 287 / NICE NG59) — co-responsabilité avec le MPR prescripteur"
+        />
+        <CardBody>
+          <RedFlagsChecklist
+            initialChecked={inferRedFlagIdsForPatient(p)}
+            context="kine_t0"
+          />
         </CardBody>
       </Card>
       <Card className="lg:col-span-2">

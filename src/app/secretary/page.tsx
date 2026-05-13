@@ -25,6 +25,22 @@ import {
 } from "@/lib/mock-data";
 import { generateMutualLetter } from "@/lib/pdf/mutualLetter";
 import { generateInamiReport } from "@/lib/pdf/inamiReport";
+import { assessFlags } from "@/lib/red-flags";
+
+// Inférence ID drapeaux rouges à partir des champs prose du dossier
+function inferRedFlagIds(p: ReturnType<typeof getPatient>): string[] {
+  if (!p) return [];
+  const ids: string[] = [];
+  const text = (p.complaint + " " + p.hypothesis + " " + p.redFlags.join(" ")).toLowerCase();
+  if (text.includes("uriner") || text.includes("urinaire") || text.includes("queue de cheval"))
+    ids.push("ce_urinary");
+  if (text.includes("périnéal") || text.includes("anesthésie")) ids.push("ce_saddle");
+  if (text.includes("sphinctérien") || text.includes("incontinence")) ids.push("ce_fecal");
+  if (text.includes("ostéoporose") || text.includes("dxa")) ids.push("fr_osteoporosis");
+  if (text.includes("perte de poids")) ids.push("ca_weight_loss");
+  if (text.includes("antécédent cancer")) ids.push("ca_history");
+  return ids;
+}
 import { useApp } from "@/lib/app-context";
 import { Card, CardHeader, CardBody } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -139,7 +155,66 @@ function OverviewTab({
   );
   const urgentMutual = mutualRequests.filter((m) => m.status === "relance requise");
 
+  // Patients avec drapeaux rouges détectés (sécurité partagée)
+  const redFlagPatients = patients
+    .map((p) => ({ p, ids: inferRedFlagIds(p) }))
+    .filter((x) => x.ids.length > 0)
+    .map((x) => ({ ...x, assessment: assessFlags(new Set(x.ids)) }))
+    .filter((x) => x.assessment.decision.level !== "ok")
+    .sort((a, b) => {
+      const order = { emergency: 0, urgent: 1, caution: 2, ok: 3 } as const;
+      return order[a.assessment.decision.level] - order[b.assessment.decision.level];
+    });
+
   return (
+    <div className="space-y-6">
+      {/* Bandeau drapeaux rouges — sécurité partagée */}
+      {redFlagPatients.length > 0 && (
+        <Card className="border-l-4 border-l-accent bg-accent/5">
+          <CardHeader
+            title="⚠️ Patients avec drapeaux rouges suspectés"
+            subtitle="Sécurité partagée — ne pas planifier de séance sans avis MPR pour ces patients"
+          />
+          <CardBody className="space-y-2">
+            {redFlagPatients.map(({ p, assessment }) => (
+              <div
+                key={p.id}
+                className="flex items-start justify-between gap-3 p-3 rounded-lg bg-white border border-accent/20"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-navy flex items-center gap-2 flex-wrap">
+                    {p.lastName.toUpperCase()} {p.firstName}
+                    <Badge
+                      variant={
+                        assessment.decision.level === "emergency" || assessment.decision.level === "urgent"
+                          ? "accent"
+                          : "amber"
+                      }
+                    >
+                      {assessment.decision.level === "emergency"
+                        ? "URGENCE"
+                        : assessment.decision.level === "urgent"
+                        ? "Urgent"
+                        : "Vigilance"}
+                    </Badge>
+                  </div>
+                  <div className="text-xs text-slate mt-1">{assessment.decision.titleFr}</div>
+                  <div className="text-xs text-ink mt-1.5 italic leading-relaxed">
+                    {assessment.decision.recommendationFr.slice(0, 180)}…
+                  </div>
+                </div>
+                <a
+                  href={`/kine/${p.id}`}
+                  className="text-xs px-3 py-1.5 rounded-md bg-navy text-white hover:bg-navy-mid whitespace-nowrap shrink-0"
+                >
+                  Ouvrir dossier →
+                </a>
+              </div>
+            ))}
+          </CardBody>
+        </Card>
+      )}
+
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Agenda du jour */}
       <Card>
@@ -235,6 +310,7 @@ function OverviewTab({
           </ul>
         </CardBody>
       </Card>
+    </div>
     </div>
   );
 }
