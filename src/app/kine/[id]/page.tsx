@@ -276,6 +276,36 @@ function OverviewTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
 function AnamnesisTab({ p }: { p: NonNullable<ReturnType<typeof getPatient>> }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Bandeau lancement anamnèse T0 */}
+      <Card className="lg:col-span-2 border-l-4 border-l-navy bg-gradient-to-r from-navy-pale via-white to-amber-soft/30">
+        <CardBody>
+          <div className="flex items-start gap-4 flex-wrap">
+            <div className="w-12 h-12 rounded-lg bg-navy text-white flex items-center justify-center shrink-0">
+              <FileText className="w-6 h-6" />
+            </div>
+            <div className="flex-1 min-w-[250px]">
+              <div className="text-xs uppercase tracking-wider text-amber font-semibold mb-0.5">
+                Bilan d'entrée — Séance 1 (T0)
+              </div>
+              <h3 className="font-serif text-lg text-navy">
+                Lancer l'anamnèse guidée T0
+              </h3>
+              <p className="text-sm text-slate mt-1 leading-relaxed">
+                Formulaire structuré en 10 sections couvrant plainte, histoire, schéma 24h, EVA, antécédents, profession, drapeaux jaunes et objectifs.
+                Possibilité d'importer un transcript Plaud — Copilot HSNE pré-remplit automatiquement les sections.
+              </p>
+            </div>
+            <Link
+              href={`/kine/${p.id}/anamnese-t0`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-navy text-white text-sm font-medium hover:bg-navy-mid shrink-0"
+            >
+              <FileText className="w-4 h-4" />
+              Lancer l'anamnèse T0
+            </Link>
+          </div>
+        </CardBody>
+      </Card>
+
       <Card>
         <CardHeader title="Plainte principale" />
         <CardBody>
