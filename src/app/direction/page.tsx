@@ -478,27 +478,27 @@ function FteTab({ fte }: { fte: ReturnType<typeof computeFTEEfficiency> }) {
 
       <Card>
         <CardHeader
-          title="Détail ETP par fonction"
-          subtitle="Calcul des coûts salariaux chargés et de la part allouée à l'EDD"
+          title="Répartition ETP par fonction"
+          subtitle="Vue agrégée par catégorie professionnelle — données anonymisées"
         />
         <CardBody>
           <table className="w-full text-sm">
             <thead className="text-xs uppercase tracking-wide text-slate bg-slate-light/40">
               <tr>
-                <th className="text-left px-3 py-2 font-bold">Personne</th>
                 <th className="text-left px-3 py-2 font-bold">Fonction</th>
-                <th className="text-right px-3 py-2 font-bold">Coût 1.0 ETP</th>
+                <th className="text-left px-3 py-2 font-bold">Affectation</th>
                 <th className="text-right px-3 py-2 font-bold">% EDD</th>
+                <th className="text-right px-3 py-2 font-bold">ETP alloué</th>
                 <th className="text-right px-3 py-2 font-bold">Coût alloué EDD</th>
               </tr>
             </thead>
             <tbody>
               {STAFF.map((s) => (
                 <tr key={s.id} className="border-t border-hairline/40">
-                  <td className="px-3 py-2 font-medium text-navy">{s.name}</td>
-                  <td className="px-3 py-2 text-slate">{s.role}</td>
-                  <td className="px-3 py-2 text-right tabular-nums">{fmtEurFull(s.annualCostFullTime)}</td>
+                  <td className="px-3 py-2 font-medium text-navy">{s.role}</td>
+                  <td className="px-3 py-2 text-slate text-xs">{s.team ?? "—"}</td>
                   <td className="px-3 py-2 text-right tabular-nums font-medium text-cyan">{(s.fteEDD * 100).toFixed(0)} %</td>
+                  <td className="px-3 py-2 text-right tabular-nums">{s.fteEDD.toFixed(2)}</td>
                   <td className="px-3 py-2 text-right tabular-nums font-bold text-navy">
                     {fmtEurFull(s.fteEDD * s.annualCostFullTime)}
                   </td>
@@ -513,6 +513,10 @@ function FteTab({ fte }: { fte: ReturnType<typeof computeFTEEfficiency> }) {
               </tr>
             </tbody>
           </table>
+          <div className="mt-3 text-xs text-slate italic">
+            Note : les coûts salariaux unitaires (1.0 ETP) ne sont pas affichés — seul le coût alloué à l&apos;EDD
+            (ETP × salaire) est nécessaire pour l&apos;analyse de rentabilité du service.
+          </div>
         </CardBody>
       </Card>
     </div>

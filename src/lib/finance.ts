@@ -55,22 +55,24 @@ export const REVENUE_DERIVED = {
 // ─── Coûts personnel (ETP) ───────────────────────────────────────
 export type StaffEntry = {
   id: string;
-  name: string;
   role: string;
+  team?: string; // équipe matin / après-midi (optionnel)
   fteEDD: number; // part de l'ETP allouée à l'EDD (0 → 1)
   annualCostFullTime: number; // coût annuel chargé 1.0 ETP en €
 };
 
+// Anonymisé : on ne nomme pas les personnes pour éviter de
+// rendre visible la disparité salariale (sujet sensible RH).
 export const STAFF: StaffEntry[] = [
-  { id: "pb", name: "Philippe Banaszak", role: "Kinésithérapeute coordinateur", fteEDD: 1.0, annualCostFullTime: 62000 },
-  { id: "fj", name: "Fanny Jenniges", role: "Ergothérapeute", fteEDD: 0.5, annualCostFullTime: 56000 },
-  { id: "jl", name: "Jean-Luc Drosson", role: "Kinésithérapeute (équipe AM)", fteEDD: 0.4, annualCostFullTime: 60000 },
-  { id: "wh", name: "Wivine Houbben", role: "Ergothérapeute (équipe AM)", fteEDD: 0.3, annualCostFullTime: 56000 },
-  { id: "mpr1", name: "Dr. S. Henrot", role: "Médecin physiothérapeute MPR", fteEDD: 0.08, annualCostFullTime: 145000 },
-  { id: "mpr2", name: "Dr. H. Kaufmann", role: "Médecin physiothérapeute MPR", fteEDD: 0.06, annualCostFullTime: 145000 },
-  { id: "mpr3", name: "Dr. M. Lejeune", role: "Médecin physiothérapeute MPR", fteEDD: 0.04, annualCostFullTime: 145000 },
-  { id: "psy", name: "Dr. K. Vossen", role: "Psychologue (séances groupe)", fteEDD: 0.10, annualCostFullTime: 72000 },
-  { id: "secr", name: "Secrétariat partagé", role: "Secrétariat / accueil", fteEDD: 0.20, annualCostFullTime: 42000 },
+  { id: "kine-coord", role: "Kinésithérapeute coordinateur", team: "Équipe matin", fteEDD: 1.0, annualCostFullTime: 62000 },
+  { id: "ergo-1", role: "Ergothérapeute", team: "Équipe matin", fteEDD: 0.5, annualCostFullTime: 56000 },
+  { id: "kine-2", role: "Kinésithérapeute", team: "Équipe après-midi", fteEDD: 0.4, annualCostFullTime: 60000 },
+  { id: "ergo-2", role: "Ergothérapeute", team: "Équipe après-midi", fteEDD: 0.3, annualCostFullTime: 56000 },
+  { id: "mpr1", role: "Médecin physiothérapeute MPR", team: "Médecin prescripteur n°1", fteEDD: 0.08, annualCostFullTime: 145000 },
+  { id: "mpr2", role: "Médecin physiothérapeute MPR", team: "Médecin prescripteur n°2", fteEDD: 0.06, annualCostFullTime: 145000 },
+  { id: "mpr3", role: "Médecin physiothérapeute MPR", team: "Médecin prescripteur n°3", fteEDD: 0.04, annualCostFullTime: 145000 },
+  { id: "psy", role: "Psychologue (séances groupe)", fteEDD: 0.10, annualCostFullTime: 72000 },
+  { id: "secr", role: "Secrétariat / accueil", team: "Mutualisé", fteEDD: 0.20, annualCostFullTime: 42000 },
 ];
 
 export const STAFF_TOTALS = {
