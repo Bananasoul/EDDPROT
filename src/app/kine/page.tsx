@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Search, Users, ClipboardCheck, Calendar, TrendingDown, Smile, Plus, ChevronRight } from "lucide-react";
+import { Search, Users, ClipboardCheck, Calendar, TrendingDown, Smile, Plus, ChevronRight, Sunrise, ArrowRight } from "lucide-react";
 import { patients, kpis } from "@/lib/mock-data";
 import { useApp } from "@/lib/app-context";
 import { KPITile } from "@/components/KPITile";
@@ -32,6 +32,28 @@ export default function KinePage() {
           {t.newEval}
         </button>
       </div>
+
+      {/* CTA Mon matin — vue principale d'arrivée */}
+      <Link
+        href="/kine/aujourdhui"
+        className="block mb-6 rounded-xl bg-gradient-to-r from-navy via-navy-mid to-cyan-mid text-white p-5 hover:shadow-xl hover:scale-[1.005] transition group"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+            <Sunrise className="w-7 h-7" />
+          </div>
+          <div className="flex-1">
+            <div className="text-xs uppercase tracking-widest opacity-80 font-bold">
+              Vue d&apos;arrivée recommandée
+            </div>
+            <div className="font-bold text-xl mt-0.5">Mon matin du jour</div>
+            <div className="text-sm opacity-90 mt-1">
+              Liste de présence du groupe · alertes assiduité · nouveaux T0 · interventions ergo · séances psy
+            </div>
+          </div>
+          <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition" />
+        </div>
+      </Link>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
         <KPITile label={t.kpi.active} value={k.active} icon={<Users className="w-5 h-5" />} />
