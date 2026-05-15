@@ -36,7 +36,7 @@ export default function KinePage() {
       {/* CTA Mon matin — vue principale d'arrivée */}
       <Link
         href="/kine/aujourdhui"
-        className="block mb-6 rounded-xl bg-gradient-to-r from-navy via-navy-mid to-cyan-mid text-white p-5 hover:shadow-xl hover:scale-[1.005] transition group"
+        className="block mb-4 rounded-xl bg-gradient-to-r from-navy via-navy-mid to-cyan-mid text-white p-5 hover:shadow-xl hover:scale-[1.005] transition group"
       >
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
@@ -54,6 +54,42 @@ export default function KinePage() {
           <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition" />
         </div>
       </Link>
+
+      {/* Boutons magiques : Veille + Métaphores */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+        <Link
+          href="/veille"
+          className="rounded-xl bg-white border-2 border-cyan p-4 hover:bg-cyan-soft transition group flex items-center gap-3"
+        >
+          <div className="w-10 h-10 rounded-lg bg-cyan text-white flex items-center justify-center shrink-0">
+            <span className="text-xl">✨</span>
+          </div>
+          <div className="flex-1">
+            <div className="text-[10px] uppercase tracking-widest text-cyan-mid font-bold">
+              Bouton magique #1
+            </div>
+            <div className="font-bold text-navy">Veille scientifique LBP</div>
+            <div className="text-xs text-slate mt-0.5">12 articles cette quinzaine · résumés Copilot · implications HSNE</div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-cyan group-hover:translate-x-0.5 transition" />
+        </Link>
+        <Link
+          href="/metaphores"
+          className="rounded-xl bg-white border-2 border-amber p-4 hover:bg-amber-soft transition group flex items-center gap-3"
+        >
+          <div className="w-10 h-10 rounded-lg bg-amber text-white flex items-center justify-center shrink-0">
+            <span className="text-xl">📖</span>
+          </div>
+          <div className="flex-1">
+            <div className="text-[10px] uppercase tracking-widest text-amber font-bold">
+              Bouton magique #2
+            </div>
+            <div className="font-bold text-navy">6 métaphores pédagogiques</div>
+            <div className="text-xs text-slate mt-0.5">Locomotive · éponge · câble · sprinter · jeu on/off · voiture</div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-amber group-hover:translate-x-0.5 transition" />
+        </Link>
+      </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
         <KPITile label={t.kpi.active} value={k.active} icon={<Users className="w-5 h-5" />} />
