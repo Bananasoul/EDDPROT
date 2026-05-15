@@ -1,16 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { LogOut, User as UserIcon, LogIn } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
 import { DemoMode } from "./DemoMode";
 import { HSNELogo } from "./HSNELogo";
 
+type Session = {
+  loggedIn: boolean;
+  method: string;
+  loginAt: string;
+  name: string;
+  role: string;
+} | null;
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { lang, setLang, t } = useApp();
   const pathname = usePathname();
+  const router = useRouter();
   const isHome = pathname === "/";
+  const isLogin = pathname === "/login";
+  const [session, setSession] = useState<Session>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = sessionStorage.getItem("edd.session");
+    if (raw) try { setSession(JSON.parse(raw)); } catch {}
+  }, [pathname]);
+
+  const logout = () => {
+    sessionStorage.removeItem("edd.session");
+    setSession(null);
+    router.push("/login");
+  };
+
+  // Sur la page de login : pas d'AppShell, render direct
+  if (isLogin) return <>{children}</>;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -64,6 +92,34 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 DE
               </button>
             </div>
+
+            {/* User indicator */}
+            {session ? (
+              <div className="hidden md:flex items-center gap-2 pl-3 border-l border-hairline">
+                <div className="w-8 h-8 rounded-full bg-cyan text-white flex items-center justify-center text-xs font-bold">
+                  {session.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                </div>
+                <div className="text-xs leading-tight">
+                  <div className="font-bold text-navy">{session.name}</div>
+                  <div className="text-slate text-[10px]">{session.role}</div>
+                </div>
+                <button
+                  onClick={logout}
+                  className="ml-1 p-1.5 rounded-md text-slate hover:text-accent hover:bg-accent/10"
+                  title="Se déconnecter"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold border border-cyan text-cyan hover:bg-cyan hover:text-white transition"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                Se connecter
+              </Link>
+            )}
           </div>
         </div>
       </header>
