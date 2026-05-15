@@ -14,6 +14,7 @@ import {
   Sparkles,
   PhoneCall,
   Calendar,
+  Sunset,
 } from "lucide-react";
 import Link from "next/link";
 import { patients, appointments, getPatient, type Patient } from "@/lib/mock-data";
@@ -307,6 +308,28 @@ export default function AujourdhuiPage() {
           </CardBody>
         </Card>
       </div>
+
+      {/* CTA fin de journée */}
+      <Link
+        href="/kine/fin-de-journee"
+        className="block rounded-xl bg-gradient-to-r from-amber to-amber/80 text-white p-5 hover:shadow-xl hover:scale-[1.005] transition group"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-white/15 flex items-center justify-center shrink-0">
+            <Sunset className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <div className="text-xs uppercase tracking-widest opacity-80 font-bold">
+              Avant de partir
+            </div>
+            <div className="font-bold text-lg mt-0.5">Encoder la fin de journée</div>
+            <div className="text-sm opacity-90 mt-0.5">
+              Vérifier les codes thérapeutes (kiné + ergo) pour chaque séance · générer le CSV pour PHYSIO
+            </div>
+          </div>
+          <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition" />
+        </div>
+      </Link>
 
       {/* Modal absence */}
       {modalPatient && (
