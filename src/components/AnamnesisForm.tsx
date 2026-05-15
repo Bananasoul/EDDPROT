@@ -10,10 +10,14 @@ import {
   AlertTriangle,
   CheckCircle2,
   Sparkles,
+  Eye,
+  Printer,
+  Mic,
 } from "lucide-react";
 import {
   type AnamnesisData,
   emptyAnamnesis,
+  parseTranscript,
   SECTION_LABELS,
   ONSET_TYPE_LABELS,
   EVOLUTION_LABELS,
@@ -21,6 +25,8 @@ import {
   SLEEP_QUALITY_LABELS,
 } from "@/lib/anamnesis";
 import { TranscriptImporter } from "@/components/TranscriptImporter";
+import { LiveInterviewMode } from "@/components/LiveInterviewMode";
+import { generateBlankAnamnesisForm } from "@/lib/pdf/anamnesisBlankForm";
 import type { Patient } from "@/lib/mock-data";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
@@ -63,6 +69,7 @@ export function AnamnesisForm({
   const tr = (fr: string, de: string) => (lang === "de" ? de : fr);
   const [data, setData] = useState<AnamnesisData>(() => emptyAnamnesis(patient.id));
   const [importerOpen, setImporterOpen] = useState(false);
+  const [liveMode, setLiveMode] = useState(false);
   const [openSection, setOpenSection] = useState<SectionKey | null>("mainComplaint");
   const [recentlyFilled, setRecentlyFilled] = useState<Set<string>>(new Set());
 
@@ -120,13 +127,30 @@ export function AnamnesisForm({
               />
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setLiveMode(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-bold bg-gradient-to-r from-cyan to-cyan-mid text-white hover:opacity-90 shadow-sm"
+              title={tr("Vue plein écran avec le patient · enregistrement intégré", "Vollbildansicht mit Patient · integrierte Aufnahme")}
+            >
+              <Eye className="w-4 h-4" />
+              {tr("Mode entretien live", "Live-Modus")}
+            </button>
             <button
               onClick={() => setImporterOpen(true)}
-              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-navy to-navy-mid text-white hover:opacity-90"
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-navy text-white hover:bg-navy-mid"
+              title={tr("Importer transcript Plaud / Azure Speech", "Plaud / Azure Speech importieren")}
             >
               <ClipboardPaste className="w-4 h-4" />
-              {tr("Coller transcript Plaud", "Plaud-Transkript einfügen")}
+              {tr("Coller / Importer", "Einfügen / Importieren")}
+            </button>
+            <button
+              onClick={() => generateBlankAnamnesisForm(patient, lang)}
+              className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium border border-hairline text-navy hover:bg-navy-pale"
+              title={tr("Imprimer la fiche vierge pour avoir sur la table", "Leeres Formular drucken")}
+            >
+              <Printer className="w-4 h-4" />
+              {tr("Fiche vierge", "Leeres Formular")}
             </button>
             <button
               onClick={() => onSave?.(data)}
@@ -140,7 +164,7 @@ export function AnamnesisForm({
               className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium bg-clover text-white hover:bg-clover/90"
             >
               <FileText className="w-4 h-4" />
-              {tr("PDF", "PDF")}
+              {tr("PDF rempli", "Ausgefülltes PDF")}
             </button>
           </div>
         </div>
@@ -224,6 +248,19 @@ export function AnamnesisForm({
           patientId={patient.id}
           onImport={handleImport}
           onClose={() => setImporterOpen(false)}
+        />
+      )}
+
+      {/* Mode entretien live (plein écran avec patient) */}
+      {liveMode && (
+        <LiveInterviewMode
+          data={data}
+          onUpdate={updateField}
+          onClose={() => setLiveMode(false)}
+          onAudioTranscript={(text) => {
+            const result = parseTranscript(text, patient.id);
+            handleImport(result);
+          }}
         />
       )}
     </div>

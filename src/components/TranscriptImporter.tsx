@@ -14,6 +14,7 @@ import {
 import { parseTranscript, type ParseResult } from "@/lib/anamnesis";
 import { useApp } from "@/lib/app-context";
 import { cn } from "@/lib/utils";
+import { RecordingControls } from "@/components/RecordingControls";
 
 type Phase = "input" | "analyzing" | "result";
 
@@ -135,6 +136,31 @@ export function TranscriptImporter({
           {/* PHASE 1 — INPUT */}
           {phase === "input" && (
             <div className="p-6 space-y-4">
+              {/* Option 1 : Enregistrement audio en direct (Azure Speech) */}
+              <RecordingControls
+                onTranscriptReady={(transcriptText) => {
+                  setText(transcriptText);
+                  // Démarrage automatique de l'analyse
+                  setTimeout(() => {
+                    setStepIdx(0);
+                    setResult(null);
+                    setPhase("analyzing");
+                  }, 500);
+                }}
+              />
+
+              {/* Séparateur */}
+              <div className="relative py-1">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-hairline"></div>
+                </div>
+                <div className="relative flex justify-center">
+                  <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-slate font-bold">
+                    {tr("OU coller un transcript existant (Plaud)", "ODER bestehendes Transkript einfügen (Plaud)")}
+                  </span>
+                </div>
+              </div>
+
               <div className="text-sm text-slate leading-relaxed">
                 {tr(
                   "Collez ici le transcript complet d'une anamnèse enregistrée avec votre dispositif Plaud. Copilot (HSNE) va parcourir le texte et pré-remplir les 10 sections du formulaire d'anamnèse T0. Vous gardez la main : tout reste éditable avant validation.",
