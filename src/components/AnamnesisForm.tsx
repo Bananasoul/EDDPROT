@@ -26,6 +26,9 @@ import {
 } from "@/lib/anamnesis";
 import { TranscriptImporter } from "@/components/TranscriptImporter";
 import { LiveInterviewMode } from "@/components/LiveInterviewMode";
+import { CollaborativePresence } from "@/components/CollaborativePresence";
+import { FieldPresence } from "@/components/FieldPresence";
+import { useMockCollaborators } from "@/lib/collaborators";
 import { generateBlankAnamnesisForm } from "@/lib/pdf/anamnesisBlankForm";
 import type { Patient } from "@/lib/mock-data";
 import { useApp } from "@/lib/app-context";
@@ -72,6 +75,8 @@ export function AnamnesisForm({
   const [liveMode, setLiveMode] = useState(false);
   const [openSection, setOpenSection] = useState<SectionKey | null>("mainComplaint");
   const [recentlyFilled, setRecentlyFilled] = useState<Set<string>>(new Set());
+  // Présence collaborative simulée
+  const collaborators = useMockCollaborators({ patientId: patient.id });
 
   // Highlight filled fields briefly after import
   useEffect(() => {
@@ -177,6 +182,12 @@ export function AnamnesisForm({
             )}
           </div>
         )}
+        {/* Présence collaborative — avatars empilés type Google Docs */}
+        {collaborators.length > 0 && (
+          <div className="mt-2">
+            <CollaborativePresence collaborators={collaborators} />
+          </div>
+        )}
       </div>
 
       {/* Sections */}
@@ -203,7 +214,7 @@ export function AnamnesisForm({
               <MainComplaintSection data={data} update={updateField} wasFilled={wasFilled} tr={tr} />
             )}
             {sectionKey === "painHistory" && (
-              <PainHistorySection data={data} update={updateField} wasFilled={wasFilled} tr={tr} />
+              <PainHistorySection data={data} update={updateField} wasFilled={wasFilled} tr={tr} collaborators={collaborators} />
             )}
             {sectionKey === "daySchema" && (
               <DaySchemaSection data={data} update={updateField} wasFilled={wasFilled} tr={tr} />
@@ -428,6 +439,7 @@ type SectionProps = {
   ) => void;
   wasFilled: (section: string, field: string) => boolean;
   tr: (fr: string, de: string) => string;
+  collaborators?: import("@/lib/collaborators").Collaborator[];
 };
 
 // ─── 1. Plainte principale ────────────────────────────────────────
@@ -489,7 +501,7 @@ function MainComplaintSection({ data, update, wasFilled, tr }: SectionProps) {
 }
 
 // ─── 2. Histoire ──────────────────────────────────────────────────
-function PainHistorySection({ data, update, wasFilled, tr }: SectionProps) {
+function PainHistorySection({ data, update, wasFilled, tr, collaborators = [] }: SectionProps) {
   return (
     <div className="space-y-3 pt-2">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -497,12 +509,14 @@ function PainHistorySection({ data, update, wasFilled, tr }: SectionProps) {
           <FieldLabel filled={wasFilled("Histoire", "Date début")}>
             {tr("Date / ancienneté du début", "Datum / Dauer des Beginns")}
           </FieldLabel>
-          <TextInput
-            value={data.painHistory.onsetDate}
-            onChange={(v) => update("painHistory", "onsetDate", v)}
-            placeholder={tr("ex. octobre 2023, depuis 6 mois", "z.B. Oktober 2023, seit 6 Monaten")}
-            filled={wasFilled("Histoire", "Date début")}
-          />
+          <FieldPresence fieldKey="anamnesis.painHistory.onsetDate" collaborators={collaborators}>
+            <TextInput
+              value={data.painHistory.onsetDate}
+              onChange={(v) => update("painHistory", "onsetDate", v)}
+              placeholder={tr("ex. octobre 2023, depuis 6 mois", "z.B. Oktober 2023, seit 6 Monaten")}
+              filled={wasFilled("Histoire", "Date début")}
+            />
+          </FieldPresence>
         </div>
         <div>
           <FieldLabel filled={wasFilled("Histoire", "Type début")}>

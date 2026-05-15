@@ -31,6 +31,9 @@ import { MultiScoreChart } from "@/components/MultiScoreChart";
 import { BodyChart } from "@/components/BodyChart";
 import { BikeTest } from "@/components/BikeTest";
 import { ApparatusSessionsView } from "@/components/ApparatusSessions";
+import { CollaborativePresence } from "@/components/CollaborativePresence";
+import { GhostCursors } from "@/components/GhostCursors";
+import { useMockCollaborators } from "@/lib/collaborators";
 import { RedFlagsChecklist, RedFlagsSummary } from "@/components/RedFlags";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +66,8 @@ export default function PatientPage() {
   const p = getPatient(params.id);
   const { t } = useApp();
   const [tab, setTab] = useState<Tab>("overview");
+  // Présence collaborative simulée
+  const collaborators = useMockCollaborators({ patientId: params.id });
 
   if (!p) return notFound();
 
@@ -120,6 +125,8 @@ export default function PatientPage() {
             <div className="text-xs text-slate">
               {p.sessionsDone}/36 {t.sessions.toLowerCase()}
             </div>
+            {/* Présence collaborative */}
+            <CollaborativePresence collaborators={collaborators} className="mt-2" />
           </div>
         </div>
 
@@ -147,6 +154,9 @@ export default function PatientPage() {
       {tab === "tests" && <TestsTab p={p} />}
       {tab === "sessions" && <SessionsTab p={p} />}
       {tab === "report" && <ReportTab p={p} />}
+
+      {/* Ghost cursors collaborateurs */}
+      <GhostCursors collaborators={collaborators} />
     </div>
   );
 }
